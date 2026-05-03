@@ -6,6 +6,7 @@ export class JwtTokenAuthenticationException extends Error {
         super(message, { cause });
 
         this.name = "JwtTokenAuthenticationException";
+        this.status = 401;
 
         Object.setPrototypeOf(this, new.target.prototype);
     }

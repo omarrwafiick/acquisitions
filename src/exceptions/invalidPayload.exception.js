@@ -1,11 +1,11 @@
-export class JwtTokenCreationException extends Error {
+export class InvalidPayloadException extends Error {
     constructor(
-        message = "Failed to create JWT token",
+        message = "Payload is invalid to pass.",
         cause = 'Unknown' 
     ) {
         super(message, { cause });
 
-        this.name = "JwtTokenCreationException";
+        this.name = "InvalidPayloadException";
         this.status = 400;
 
         Object.setPrototypeOf(this, new.target.prototype);

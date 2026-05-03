@@ -18,17 +18,17 @@ router.get("/health", async (_req, res) => {
     status = 503;
   }
   
-  responseHandler(req, res, 200, {
+  responseHandler(req, res, {
     status: status === 200 ? "healthy" : "degraded",
     checks,
     uptime: process.uptime(),
     memory: process.memoryUsage(),
     timestamp: new Date().toISOString(),
-  });
+  }, 200);
 });
 
 router.get('/', (req, res) => {
-  responseHandler(req, res, 200, { message: 'API is running...' });
+  responseHandler(req, res, { message: 'API is running...' }, 200);
 });
 
 export default router;
