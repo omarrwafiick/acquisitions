@@ -1,4 +1,3 @@
-import logger from '#config/logger.js';
 import InvalidPayloadException from '#exceptions/invalidPayload.exception.js';
 import formatValidationError from '#utils/format.js';
 

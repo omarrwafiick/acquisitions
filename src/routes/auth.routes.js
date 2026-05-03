@@ -1,17 +1,12 @@
 import express from 'express';
-import responseHandler from '#utils/response.js';
-import { register } from '#controllers/auth.controller.js';
+import { login, logout, register } from '#controllers/auth.controller.js';
 
 const router = express.Router();
 
-router.post('/login', register);
+router.post('/login', login);
 
-router.post('/register', (req, res) => {
-  responseHandler(req, res, { message: '' }, 200);
-});
+router.post('/register', register);
 
-router.post('/logout', (req, res) => {
-  responseHandler(req, res, { message: '' }, 200);
-});
+router.post('/logout', logout);
 
 export default router;

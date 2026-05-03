@@ -1,6 +1,7 @@
 import express from 'express';
 import responseHandler from '#utils/response.js';
 import { db } from '#config/database.js';
+import { sql } from 'drizzle-orm';
 
 const router = express.Router();
 
