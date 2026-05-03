@@ -7,7 +7,5 @@ export class DuplicateException extends Error {
 
         this.name = "DuplicateException";
         this.status = 400;
-
-        Object.setPrototypeOf(this, new.target.prototype);
     }
 }

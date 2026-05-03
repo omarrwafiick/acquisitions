@@ -7,7 +7,5 @@ export class InvalidPayloadException extends Error {
 
         this.name = "InvalidPayloadException";
         this.status = 400;
-
-        Object.setPrototypeOf(this, new.target.prototype);
     }
 }

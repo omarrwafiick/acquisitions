@@ -7,7 +7,5 @@ export class InvalidPasswordException extends Error {
 
         this.name = "InvalidPasswordException";
         this.status = 400;
-
-        Object.setPrototypeOf(this, new.target.prototype);
     }
 }
