@@ -4,23 +4,23 @@ import {
   varchar,
   timestamp,
   uniqueIndex,
-} from "drizzle-orm/pg-core";
+} from 'drizzle-orm/pg-core';
 
 export const organizations = pgTable(
-  "organizations",
+  'organizations',
   {
-    id: serial("id").primaryKey(),
+    id: serial('id').primaryKey(),
 
-    name: varchar("name", { length: 255 }).notNull(),
+    name: varchar('name', { length: 255 }).notNull(),
 
-    slug: varchar("slug", { length: 255 }).notNull(),
+    slug: varchar('slug', { length: 255 }).notNull(),
 
-    created_at: timestamp("created_at")
+    created_at: timestamp('created_at')
       .defaultNow()
       .notNull(),
   },
   (table) => ({
-    slugIdx: uniqueIndex("organizations_slug_idx")
+    slugIdx: uniqueIndex('organizations_slug_idx')
       .on(table.slug),
   })
 );

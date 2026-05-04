@@ -6,44 +6,44 @@ import {
   timestamp,
   index,
   uniqueIndex,
-} from "drizzle-orm/pg-core";
+} from 'drizzle-orm/pg-core';
 
 export const users = pgTable(
-  "users",
+  'users',
   {
-    id: serial("id").primaryKey(),
+    id: serial('id').primaryKey(),
 
-    org_id: integer("org_id")
+    org_id: integer('org_id')
       .notNull()
       .references(() => organizations.id, {
-        onDelete: "cascade",
+        onDelete: 'cascade',
       }),
 
-    name: varchar("name", { length: 255 }).notNull(),
+    name: varchar('name', { length: 255 }).notNull(),
 
-    email: varchar("email", { length: 255 }).notNull(),
+    email: varchar('email', { length: 255 }).notNull(),
 
-    password: varchar("password", {
+    password: varchar('password', {
       length: 255,
     }).notNull(),
 
-    role: varchar("role", {
+    role: varchar('role', {
       length: 50,
     }).notNull(),
 
-    created_at: timestamp("created_at")
+    created_at: timestamp('created_at')
       .defaultNow()
       .notNull(),
 
-    updated_at: timestamp("updated_at")
+    updated_at: timestamp('updated_at')
       .defaultNow()
       .notNull(),
   },
   (table) => ({
-    emailIdx: uniqueIndex("users_email_idx")
+    emailIdx: uniqueIndex('users_email_idx')
       .on(table.email),
 
-    orgIdx: index("users_org_id_idx")
+    orgIdx: index('users_org_id_idx')
       .on(table.org_id),
   })
 );

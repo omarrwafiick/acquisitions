@@ -5,28 +5,28 @@ import {
   integer,
   numeric,
   index,
-} from "drizzle-orm/pg-core";
+} from 'drizzle-orm/pg-core';
 
 export const requestItems = pgTable(
-  "request_items",
+  'request_items',
   {
-    id: serial("id").primaryKey(),
+    id: serial('id').primaryKey(),
 
-    request_id: integer("request_id")
+    request_id: integer('request_id')
       .notNull()
       .references(() => requests.id, {
-        onDelete: "cascade",
+        onDelete: 'cascade',
       }),
 
-    name: varchar("name", {
+    name: varchar('name', {
       length: 255,
     }).notNull(),
 
-    quantity: integer("quantity")
+    quantity: integer('quantity')
       .notNull(),
 
     estimated_price: numeric(
-      "estimated_price",
+      'estimated_price',
       {
         precision: 12,
         scale: 2,
@@ -35,7 +35,7 @@ export const requestItems = pgTable(
   },
   (table) => ({
     requestIdx: index(
-      "request_items_request_idx"
+      'request_items_request_idx'
     ).on(table.request_id),
   })
 );

@@ -34,7 +34,7 @@ router.get('/health', async (_req, res) => {
   );
 });
 
-router.get('/', (req, res) => {
+router.get('/application', (req, res) => {
   responseHandler(req, res, { message: 'API is running...' }, 200);
 });
 
