@@ -5,9 +5,9 @@ import { cookies } from '#utils/cookies.js';
 
 export const register = async (req, res, next) => {
   try {
-    const { name, email, password, role } = req.data;
+    const { name, email, password, role, org_id } = req.data;
 
-    const newUser = await createUser({ name, email, password, role });
+    const newUser = await createUser({ name, email, password, role, org_id });
 
     const token = await jwtToken.sign(newUser);
 

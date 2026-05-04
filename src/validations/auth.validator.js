@@ -12,5 +12,6 @@ export const loginSchema = z.object({
 export const registerSchema = z.object({
   name: z.string().min(3).max(255),
   role: z.enum('requester', 'approver'),
+  org_id: z.number(),
   ...commonAuthSchema,
 });
