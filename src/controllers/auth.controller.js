@@ -1,15 +1,13 @@
 import responseHandler from '#utils/response.js';
-import validationHandler from '#utils/validation.js';
-import { loginSchema, registerSchema } from '#validations/auth.validator.js';
 import { createUser, checkUserExistance } from '#services/auth.service.js';
 import { jwtToken } from '#utils/security.js';
 import { cookies } from '#utils/cookies.js';
 
 export const register = async (req, res, next) => {
   try {
-    const { name, email, password } = validationHandler(registerSchema, req.body);
+    const { name, email, password, role } = req.data;
 
-    const newUser = await createUser({ name, email, password });
+    const newUser = await createUser({ name, email, password, role });
 
     const token = await jwtToken.sign(newUser);
 
@@ -23,7 +21,7 @@ export const register = async (req, res, next) => {
 
 export const login = async (req, res, next) => {
   try {
-    const { name, email } = validationHandler(loginSchema, req.body);
+    const { name, email } = req.data;
 
     const user = await checkUserExistance({ email, password });
 

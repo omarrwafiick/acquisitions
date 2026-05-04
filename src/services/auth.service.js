@@ -7,7 +7,7 @@ import InvalidPasswordException from '#exceptions/invalidPassword.exception.js';
 import { userPassword } from '#utils/security.js';
 import logger from '#config/logger.js';
 
-export const createUser = async ({ name, email, password }) => {
+export const createUser = async ({ name, email, password, role }) => {
   const existingUser = await db
     .select()
     .from(users)
@@ -25,6 +25,7 @@ export const createUser = async ({ name, email, password }) => {
       email,
       name,
       password: hashedPassword,
+      role,
     })
     .returning({
       id: users.id,
