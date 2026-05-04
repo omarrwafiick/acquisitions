@@ -19,7 +19,11 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(cookieParser());
 
-app.use(morgan('combined', { stream: { write: (message) => logger.info(message.trim()) }}));
+app.use(
+  morgan('combined', {
+    stream: { write: message => logger.info(message.trim()) },
+  })
+);
 
 const MAIN_URL = `${process.env.URL}${process.env.VERSION}`;
 

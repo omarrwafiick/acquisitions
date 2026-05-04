@@ -1,12 +1,12 @@
-import logger from "#config/logger.js";
+import logger from '#config/logger.js';
 
-function responseHandler(req, res, message={}, status=200){
-    if(status >= 400 && status < 500){
-        logger.error(message);
-    }else{
-        logger.info(message);
-    }
-    res.status(status).json(message);
+function responseHandler(req, res, data = {}, status = 200) {
+  if (status >= 400) {
+    logger.error(data);
+  } else {
+    logger.info(data);
+  }
+  res.status(status).json(data);
 }
 
 export default responseHandler;
