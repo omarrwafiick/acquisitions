@@ -2,14 +2,14 @@ import {
   pgTable,
   serial,
   varchar,
+  text,
   integer,
   timestamp,
   index,
-  uniqueIndex,
 } from "drizzle-orm/pg-core";
 
-export const users = pgTable(
-  "users",
+export const requests = pgTable(
+  "requests",
   {
     id: serial("id").primaryKey(),
 
@@ -19,31 +19,32 @@ export const users = pgTable(
         onDelete: "cascade",
       }),
 
-    name: varchar("name", { length: 255 }).notNull(),
+    created_by: integer("created_by")
+      .notNull()
+      .references(() => users.id),
 
-    email: varchar("email", { length: 255 }).notNull(),
-
-    password: varchar("password", {
+    title: varchar("title", {
       length: 255,
     }).notNull(),
 
-    role: varchar("role", {
+    reason: text("reason"),
+
+    status: varchar("status", {
       length: 50,
     }).notNull(),
 
     created_at: timestamp("created_at")
       .defaultNow()
       .notNull(),
-
-    updated_at: timestamp("updated_at")
-      .defaultNow()
-      .notNull(),
   },
   (table) => ({
-    emailIdx: uniqueIndex("users_email_idx")
-      .on(table.email),
-
-    orgIdx: index("users_org_id_idx")
+    orgIdx: index("requests_org_idx")
       .on(table.org_id),
+
+    creatorIdx: index("requests_creator_idx")
+      .on(table.created_by),
+
+    statusIdx: index("requests_status_idx")
+      .on(table.status),
   })
 );
