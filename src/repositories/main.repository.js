@@ -19,6 +19,17 @@ export const findOne = async (table, whereClause) => {
   return row;
 };
 
+export const findOneWithJoin = async (table, relatedTable, whereClause, joinClause, fields) => {
+  const [row] = await db
+    .select(fields)
+    .from(table)
+    .innerJoin(relatedTable, joinClause)
+    .where(whereClause)
+    .limit(1);
+
+  return row;
+};
+
 export const findMany = async (table, whereClause) => {
   return db
     .select()
