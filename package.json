@@ -11,7 +11,8 @@
     "#utils/*": "./src/utils/*",
     "#validations/*": "./src/validations/*",
     "#routes/*": "./src/routes/*",
-    "#exceptions/*": "./src/exceptions/*"
+    "#exceptions/*": "./src/exceptions/*",
+    "#repositories/*": "./src/repositories/*"
   },
   "scripts": {
     "dev": "node --watch src/index.js",

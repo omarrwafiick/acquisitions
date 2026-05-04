@@ -8,7 +8,7 @@ import {
   index,
 } from 'drizzle-orm/pg-core';
 
-export const auditLogs = pgTable(
+export const audit_logs = pgTable(
   'audit_logs',
   {
     id: serial('id').primaryKey(),

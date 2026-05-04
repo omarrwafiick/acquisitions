@@ -8,7 +8,7 @@ import {
   index,
 } from 'drizzle-orm/pg-core';
 
-export const purchaseOrders = pgTable(
+export const purchase_orders = pgTable(
   'purchase_orders',
   {
     id: serial('id').primaryKey(),
