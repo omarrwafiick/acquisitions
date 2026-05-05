@@ -1,9 +1,7 @@
 import express from 'express';
 import {
-  createRequest,
   listRequests,
   getRequestById,
-  updateDraftRequest,
   submitRequest,
 } from '#controllers/request.controller.js';
 import authenticationMiddleware from '#middleware/authentication.middleware.js';
@@ -21,12 +19,6 @@ router.use(authenticationMiddleware);
 
 router.use(isMyOrganizationMiddleware);
 
-router.post('/', 
-  roleBasedAccessControlMiddleware(['requester']),
-  schemaValidatorMiddleware(createRequestSchema), 
-  createRequest
-);
-
 router.get('/', 
   roleBasedAccessControlMiddleware(['approver', 'requester']),
   listRequests
@@ -35,12 +27,6 @@ router.get('/',
 router.get('/:id',
   roleBasedAccessControlMiddleware(['approver', 'requester']),
   getRequestById
-);
-
-router.patch('/:id',
-  roleBasedAccessControlMiddleware(['requester']),
-  schemaValidatorMiddleware(updateRequestSchema),
-  updateDraftRequest
 );
 
 router.post('/:id/submit', 

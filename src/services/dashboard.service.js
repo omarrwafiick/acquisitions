@@ -1,6 +1,5 @@
 import { db } from "#config/database.js";
 import { sql } from "drizzle-orm";
-import { rowId } from "drizzle-orm/sqlite-core/expressions";
 
 export const getDashboardSummaryService = async (role, org_id, user_id) => {
     if(role === 'moderator'){

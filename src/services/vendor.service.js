@@ -4,9 +4,10 @@ import { and, eq, not } from 'drizzle-orm';
 import DuplicateException from '#exceptions/duplicate.exception.js';
 import NotFoundException from '#exceptions/notFound.exception.js';
 import { organizations } from '#models/organization.model.js';
+import { createAuditLogService } from './auditLog.service.js';
 
 export const createVendorService = async (payload) => {
-    const { email, name, org_id } = payload;
+    const { email, name, org_id, user_id } = payload;
 
     const organization = await findOne(organizations, eq(organizations.id, org_id));
 
@@ -29,6 +30,15 @@ export const createVendorService = async (payload) => {
         org_id,
         name,
         email,
+    });
+
+    await createAuditLogService({
+        org_id,
+        actor_id: user_id,
+        entity_type: 'vendor',
+        entity_id: newVendor.id,
+        action: 'create_vendor',
+        metadata: {}
     });
 
     return newVendor;
