@@ -3,7 +3,7 @@ import responseHandler from '#utils/response.js';
 
 export const listUsersController = async (req, res, next) => {
    try {
-      const data = await listUsersService(req.options);
+      const data = await listUsersService(req.options, req);
   
       responseHandler(req, res, { message: 'list was found!', data }, 200);
     } catch (error) {

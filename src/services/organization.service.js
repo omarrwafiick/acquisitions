@@ -38,5 +38,5 @@ export const getMyOrganizationService = async (payload) => {
             slug: organizations.slug,
             createdAt: organizations.created_at,
         }
-    )
+    );
 };

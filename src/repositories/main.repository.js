@@ -38,7 +38,7 @@ export const findMany = async (
   return result || [];
 };
 
-export const findOneWithJoin = async (
+const findWithJoin = (
   table,
   relatedTable,
   whereClause,
@@ -54,9 +54,51 @@ export const findOneWithJoin = async (
     query = query.where(whereClause);
   }
 
+  return query;
+};
+
+export const findOneWithJoin = async (
+  table,
+  relatedTable,
+  whereClause,
+  joinClause,
+  fields
+) => {
+  const query = findWithJoin(
+    table,
+    relatedTable,
+    whereClause,
+    joinClause,
+    fields
+  );
+
   const result = await query.limit(1);
 
   return result?.[0] || null;
+};
+
+export const findManyWithJoin = async (
+  table,
+  relatedTable,
+  whereClause,
+  joinClause,
+  fields,
+  start = 0,
+  end = 20
+) => {
+  const query = findWithJoin(
+    table,
+    relatedTable,
+    whereClause,
+    joinClause,
+    fields
+  );
+
+  const result = await query
+    .limit(end - start)
+    .offset(start);
+
+  return result || [];
 };
 
 export const updateOne = async (table, payload, whereClause) => {

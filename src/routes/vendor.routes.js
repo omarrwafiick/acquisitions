@@ -1,21 +1,27 @@
 import express from 'express';
 import {
-  createVendor,
-  listVendors,
-  getVendorById,
+  createVendorController,
+  listVendorsController,
+  getVendorByIdController,
 } from '#controllers/vendor.controller.js';
 import authenticationMiddleware from '#middleware/authentication.middleware.js';
 import schemaValidatorMiddleware from '#middleware/schemaValidator.middleware.js';
+import roleBasedAccessControlMiddleware from '#middleware/roleBasedAccessControl.middleware.js';
+import isMyOrganizationMiddleware from '#middleware/isMyOrganization.middleware.js';
 import { createVendorSchema } from '#validations/vendor.validator.js';
 
 const router = express.Router();
 
 router.use(authenticationMiddleware);
 
-router.post('/', schemaValidatorMiddleware(createVendorSchema), createVendor);
+router.use(roleBasedAccessControlMiddleware('moderator'));
 
-router.get('/', listVendors);
+router.use(isMyOrganizationMiddleware);
 
-router.get('/:id', getVendorById);
+router.post('/', schemaValidatorMiddleware(createVendorSchema), createVendorController);
+
+router.get('/', listVendorsController);
+
+router.get('/:id', getVendorByIdController);
 
 export default router;
