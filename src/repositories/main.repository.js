@@ -19,11 +19,21 @@ export const findOne = async (table, whereClause) => {
   return result?.[0] || null;
 };
 
-export const findMany = async (table, whereClause) => {
-  const result = await db
-    .select()
-    .from(table)
-    .where(whereClause);
+export const findMany = async (
+  table,
+  whereClause,
+  start = 0,
+  end = 20
+) => {
+  let query = db.select().from(table);
+
+  if (whereClause) {
+    query = query.where(whereClause);
+  }
+
+  const result = await query
+    .limit(end - start)
+    .offset(start);
 
   return result || [];
 };
