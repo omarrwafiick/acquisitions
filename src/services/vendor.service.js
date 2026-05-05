@@ -34,21 +34,21 @@ export const createVendorService = async (payload) => {
     return newVendor;
 };
 
-export const listVendorsService = async (query, req) => {
-    //TODOS:
-    //query can be extended for search as controller pass req.options sent from clients
+export const listVendorsService = async (query, { org_id }) => {
     return await findMany(
         vendors,
-        eq(vendors.org_id, req.user.org_id)
+        eq(vendors.org_id, org_id),
+        query.start,
+        query.end,
     );
 };
 
-export const getVendorByIdService = async (id, req) => {
+export const getVendorByIdService = async (id, { org_id }) => {
     return await findOne(
         vendors, 
         and(
             eq(vendors.id, id),
-            eq(vendors.org_id, req.user.org_id),
+            eq(vendors.org_id, org_id),
         )
     );
 };

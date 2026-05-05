@@ -10,8 +10,8 @@ import { eq } from 'drizzle-orm';
 import { jwtToken } from '#utils/security.js';
 import { cookies } from '#utils/cookies.js';
 
-export const createUser = async (data, res) => {
-  const { name, email, password, role, org_id } = data;
+export const createUser = async (req, res) => {
+  const { name, email, password, role, org_id } = req.data;
   
   const existingUser = await findOne(users, eq(users.email, email));
 
@@ -45,8 +45,8 @@ export const createUser = async (data, res) => {
   return mapUserInfo(newUser);
 };
 
-export const checkUserExistance = async (data, req, res) => {
-  const { email, password } = data;
+export const checkUserExistance = async (req, res) => {
+  const { email, password } = req.data;
 
   const user = await findOne(users, eq(users.email, email));
 

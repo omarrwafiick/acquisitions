@@ -3,7 +3,7 @@ import { createUser, checkUserExistance, logoutUser } from '#services/auth.servi
 
 export const register = async (req, res, next) => {
   try {
-    const data = await createUser(req.data, res);
+    const data = await createUser(req, res);
 
     responseHandler(req, res, { message: 'success account creation', data }, 201);
   } catch (error) {
@@ -13,7 +13,7 @@ export const register = async (req, res, next) => {
 
 export const login = async (req, res, next) => {
   try {
-    const user = await checkUserExistance(req.data, req, res);
+    const user = await checkUserExistance(req, res);
 
     responseHandler(req, res, { message: 'success login', data: { user } }, 200);
   } catch (error) {
