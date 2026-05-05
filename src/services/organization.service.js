@@ -14,9 +14,9 @@ export const createOrganizationService = async (payload) => {
   );
 
   if(resourceExists)
-    throw DuplicateException('Organization already exist');
+    throw new DuplicateException('Organization already exist');
 
-  const [newOrg] = await create(organizations, 
+  const newOrg = await create(organizations, 
     {
         name,
         slug,
@@ -30,7 +30,7 @@ export const getMyOrganizationService = async (payload) => {
     return await findOneWithJoin(
         organizations, 
         users, 
-        {}, 
+        undefined, 
         eq(users.org_id, organizations.id),
         {
             id: organizations.id,

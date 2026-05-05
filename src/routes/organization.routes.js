@@ -6,9 +6,9 @@ import { createOrganizationSchema } from '#validations/organization.validator.js
 
 const router = express.Router();
 
-router.use(authenticationMiddleware);
-
 router.post('/', schemaValidatorMiddleware(createOrganizationSchema), createOrganization);
+
+router.use(authenticationMiddleware);
 
 router.get('/me', getMyOrganization);
 

@@ -6,6 +6,7 @@ import {
   timestamp,
   index,
 } from 'drizzle-orm/pg-core';
+import { organizations } from '#models/organization.model.js';
 
 export const vendors = pgTable(
   'vendors',

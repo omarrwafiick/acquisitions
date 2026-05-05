@@ -8,6 +8,13 @@
       "when": 1777762175258,
       "tag": "0000_lethal_human_fly",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1777983288466,
+      "tag": "0001_slim_dagger",
+      "breakpoints": true
     }
   ]
 }

@@ -1,54 +1,69 @@
 import { db } from '#config/database.js';
 
 export const create = async (table, payload) => {
-  const [row] = await db
+  const result = await db
     .insert(table)
     .values(payload)
     .returning();
 
-  return row;
+  return result?.[0] || null;
 };
 
 export const findOne = async (table, whereClause) => {
-  const [row] = await db
+  const result = await db
     .select()
     .from(table)
     .where(whereClause)
     .limit(1);
 
-  return row;
-};
-
-export const findOneWithJoin = async (table, relatedTable, whereClause, joinClause, fields) => {
-  const [row] = await db
-    .select(fields)
-    .from(table)
-    .innerJoin(relatedTable, joinClause)
-    .where(whereClause)
-    .limit(1);
-
-  return row;
+  return result?.[0] || null;
 };
 
 export const findMany = async (table, whereClause) => {
-  return db
+  const result = await db
     .select()
     .from(table)
     .where(whereClause);
+
+  return result || [];
+};
+
+export const findOneWithJoin = async (
+  table,
+  relatedTable,
+  whereClause,
+  joinClause,
+  fields
+) => {
+  let query = db
+    .select(fields)
+    .from(table)
+    .innerJoin(relatedTable, joinClause);
+
+  if (whereClause) {
+    query = query.where(whereClause);
+  }
+
+  const result = await query.limit(1);
+
+  return result?.[0] || null;
 };
 
 export const updateOne = async (table, payload, whereClause) => {
-  const [row] = await db
+  const result = await db
     .update(table)
     .set(payload)
     .where(whereClause)
     .returning();
 
-  return row;
+  return result?.[0] || null;
 };
 
 export const deleteOne = async (table, whereClause) => {
-  return db
+  const result = await db
     .delete(table)
-    .where(whereClause);
+    .where(whereClause)
+    .returning();
+
+  return result?.[0] || null;
 };

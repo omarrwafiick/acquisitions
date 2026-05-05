@@ -1,7 +1,7 @@
 import express from 'express';
 import { login, logout, register } from '#controllers/auth.controller.js';
 import schemaValidatorMiddleware from '#middleware/schemaValidator.middleware.js';
-import { loginSchema, registerSchema, addMemerSchema } from '#validations/auth.validator.js';
+import { loginSchema, registerSchema, addMemberSchema } from '#validations/auth.validator.js';
 import authenticationMiddleware from '#middleware/authentication.middleware.js';
 import roleBaseAccessControlMiddleware from '#middleware/roleBasedAccessControl.middleware.js';
 

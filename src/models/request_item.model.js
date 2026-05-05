@@ -6,6 +6,7 @@ import {
   numeric,
   index,
 } from 'drizzle-orm/pg-core';
+import { requests } from '#models/request.model.js';
 
 export const request_items = pgTable(
   'request_items',

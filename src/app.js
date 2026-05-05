@@ -26,6 +26,6 @@ app.use(
 
 const MAIN_URL = `${process.env.URL}${process.env.VERSION}`;
 
-app.use(`${MAIN_URL}`, mainRouter);
+app.use(`/${MAIN_URL}`, mainRouter);
 
 export default app;

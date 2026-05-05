@@ -1,3 +1,4 @@
+import logger from "#config/logger.js";
 import { createOrganizationService, getMyOrganizationService } from "#services/organization.service.js";
 import responseHandler from "#utils/response.js";
 

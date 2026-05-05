@@ -10,22 +10,22 @@ import { eq } from 'drizzle-orm';
 import { jwtToken } from '#utils/security.js';
 import { cookies } from '#utils/cookies.js';
 
-export const createUser = async (data) => {
+export const createUser = async (data, res) => {
   const { name, email, password, role, org_id } = data;
   
   const existingUser = await findOne(users, eq(users.email, email));
 
-  if (existingUser.length > 0)
+  if (existingUser)
     throw new DuplicateException('User already exist');
 
   const organization = await findOne(organizations, eq(organizations.id, org_id));
 
-  if (organization.length === 0)
+  if (!organization)
     throw new NotFoundException('Organization was not found.');
 
   const hashedPassword = await userPassword.hash(password);
 
-  const [newUser] = await create(
+  const newUser = await create(
     users,
     {
       email,
@@ -42,22 +42,13 @@ export const createUser = async (data) => {
 
   cookies.set(res, 'token', token);
   
-  return { 
-    user: {
-      id: newUser.id, 
-      name, 
-      email, 
-      role: newUser.role,
-      org_id,
-      created_at: newUser.created_at,
-    },
-  };
+  return mapUserInfo(newUser);
 };
 
-export const checkUserExistance = async (data) => {
+export const checkUserExistance = async (data, req, res) => {
   const { email, password } = data;
 
-  const user = await findOne(users, eq(users.email, email))[0];
+  const user = await findOne(users, eq(users.email, email));
 
   if(!user)
     throw new NotFoundException('User was not found');
@@ -70,13 +61,26 @@ export const checkUserExistance = async (data) => {
   const userHasNoToken = !cookies.get(req, 'token');
   
   if(userHasNoToken){
-    const token = await jwtToken.sign(newUser);
+    const token = await jwtToken.sign(user);
 
     cookies.set(res, 'token', token);
   }
 
-  return user;
+  return mapUserInfo(user);
 };
+
+const mapUserInfo = (user) => {
+  return { 
+    data: {
+      id: user.id, 
+      name: user.name, 
+      email: user.email, 
+      role: user.role,
+      org_id: user.org_id,
+      created_at: user.created_at,
+    },
+  };
+}
 
 export const logoutUser = (res) => {
   cookies.clear(res, 'token');

@@ -7,6 +7,7 @@ import {
   index,
   uniqueIndex,
 } from 'drizzle-orm/pg-core';
+import { organizations } from '#models/organization.model.js';
 
 export const users = pgTable(
   'users',
