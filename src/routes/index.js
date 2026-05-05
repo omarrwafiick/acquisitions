@@ -8,8 +8,11 @@ import vendorRoutes from'./vendor.routes.js';
 import purchaseOrderRoutes from'./purchase_order.routes.js';
 import dashboardRoutes from'./dashboard.routes.js';
 import auditLogRoutes from'./audit_log.routes.js';
+import healthRoutes from'./health.routes.js';
 
 const router = express.Router();
+
+router.use('/health', healthRoutes);
 
 router.use('/auth', authRoutes);
 

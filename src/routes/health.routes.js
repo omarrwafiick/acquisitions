@@ -5,7 +5,7 @@ import { sql } from 'drizzle-orm';
 
 const router = express.Router();
 
-router.get('/health', async (_req, res) => {
+router.get('/', async (req, res) => {
   const checks = {
     api: 'up',
     database: 'down',
