@@ -1,5 +1,5 @@
 import express from 'express';
-import { getDashboardSummary } from '#controllers/dashboard.controller.js';
+import { getDashboardSummaryController } from '#controllers/dashboard.controller.js';
 import authenticationMiddleware from '#middleware/authentication.middleware.js';
 import isMyOrganizationMiddleware from '#middleware/isMyOrganization.middleware.js';
 import roleBasedAccessControlMiddleware from '#middleware/roleBasedAccessControl.middleware.js';
@@ -12,6 +12,6 @@ router.use(roleBasedAccessControlMiddleware(['moderator', 'requester', 'approver
 
 router.use(isMyOrganizationMiddleware);
 
-router.get('/summary', getDashboardSummary);
+router.get('/summary', getDashboardSummaryController);
 
 export default router;
