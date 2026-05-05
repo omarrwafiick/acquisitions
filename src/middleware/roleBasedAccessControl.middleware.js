@@ -1,5 +1,4 @@
 import ForbiddenException from '#exceptions/forbidden.exception.js';
-import formatValidationError from '#utils/format.js';
 import responseHandler from '#utils/response.js';
 
 const roleBaseAccessControlMiddleware = (role) => (req, res, next) => {

@@ -1,5 +1,5 @@
 import InvalidPayloadException from '#exceptions/invalidPayload.exception.js';
-import formatValidationError from '#utils/format.js';
+import { formatValidationError } from '#utils/format.js';
 import responseHandler from '#utils/response.js';
 
 const schemaValidatorMiddleware = (schema) => (req, res, next) => {
