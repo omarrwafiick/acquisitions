@@ -8,6 +8,8 @@ import {
 } from '#controllers/request.controller.js';
 import authenticationMiddleware from '#middleware/authentication.middleware.js';
 import schemaValidatorMiddleware from '#middleware/schemaValidator.middleware.js';
+import isMyOrganizationMiddleware from '#middleware/isMyOrganization.middleware.js';
+import roleBasedAccessControlMiddleware from '#middleware/roleBasedAccessControl.middleware.js';
 import {
   createRequestSchema,
   updateRequestSchema,
@@ -17,14 +19,33 @@ const router = express.Router();
 
 router.use(authenticationMiddleware);
 
-router.post('/', schemaValidatorMiddleware(createRequestSchema), createRequest);
+router.use(isMyOrganizationMiddleware);
 
-router.get('/', listRequests);
+router.post('/', 
+  roleBasedAccessControlMiddleware(['requester']),
+  schemaValidatorMiddleware(createRequestSchema), 
+  createRequest
+);
 
-router.get('/:id', getRequestById);
+router.get('/', 
+  roleBasedAccessControlMiddleware(['approver', 'requester']),
+  listRequests
+);
 
-router.patch('/:id', schemaValidatorMiddleware(updateRequestSchema), updateDraftRequest);
+router.get('/:id',
+  roleBasedAccessControlMiddleware(['approver', 'requester']),
+  getRequestById
+);
 
-router.post('/:id/submit', submitRequest);
+router.patch('/:id',
+  roleBasedAccessControlMiddleware(['requester']),
+  schemaValidatorMiddleware(updateRequestSchema),
+  updateDraftRequest
+);
+
+router.post('/:id/submit', 
+  roleBasedAccessControlMiddleware(['requester']),
+  submitRequest
+);
 
 export default router;

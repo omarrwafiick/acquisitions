@@ -14,14 +14,22 @@ const router = express.Router();
 
 router.use(authenticationMiddleware);
 
-router.use(roleBasedAccessControlMiddleware('moderator'));
-
 router.use(isMyOrganizationMiddleware);
 
-router.post('/', schemaValidatorMiddleware(createVendorSchema), createVendorController);
+router.get('/', 
+  roleBasedAccessControlMiddleware(['moderator', 'requester', 'approver']),
+  listVendorsController
+);
 
-router.get('/', listVendorsController);
+router.get('/:id',
+  roleBasedAccessControlMiddleware(['moderator', 'requester', 'approver']),
+  getVendorByIdController
+);
 
-router.get('/:id', getVendorByIdController);
+router.post('/',
+  roleBasedAccessControlMiddleware(['moderator']),
+  schemaValidatorMiddleware(createVendorSchema), 
+  createVendorController
+);
 
 export default router;

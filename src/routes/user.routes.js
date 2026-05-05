@@ -8,7 +8,7 @@ const router = express.Router();
 
 router.use(authenticationMiddleware);
 
-router.use(roleBasedAccessControlMiddleware('moderator'));
+router.use(roleBasedAccessControlMiddleware(['moderator']));
 
 router.use(isMyOrganizationMiddleware);
 

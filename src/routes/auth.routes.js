@@ -16,7 +16,7 @@ router.use(authenticationMiddleware);
 router.post('/logout', logout);
 
 router.post('/member',
-    roleBaseAccessControlMiddleware("moderator"),
+    roleBaseAccessControlMiddleware(["moderator"]),
     schemaValidatorMiddleware(addMemberSchema), 
     register
 );
