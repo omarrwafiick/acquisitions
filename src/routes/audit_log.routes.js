@@ -8,7 +8,7 @@ const router = express.Router();
 
 router.use(authenticationMiddleware);
 
-router.get('/', 
+router.post('/', 
     roleBasedAccessControlMiddleware([CONSTANTS.ROLES.MODERATOR]),
     listAuditLogsController
 );

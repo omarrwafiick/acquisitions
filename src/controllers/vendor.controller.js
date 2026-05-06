@@ -13,7 +13,12 @@ export const createVendorController = async (req, res, next) => {
 
 export const listVendorsController = async (req, res, next) => {
   try {
-    const data = await listVendorsService(req.options, { org_id: req.user.org_id });
+    const data = await listVendorsService(
+      req.body.options, 
+      { 
+        org_id: req.user.org_id,
+      }
+    );
 
     responseHandler(req, res, { message: 'vendors list was found!', data }, 200);
   } catch (error) {

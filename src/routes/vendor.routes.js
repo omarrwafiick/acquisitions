@@ -14,10 +14,8 @@ import { CONSTANTS } from '#services/constants.service.js';
 const router = express.Router();
 
 router.use(authenticationMiddleware);
-
-router.use(isMyOrganizationMiddleware);
-
-router.get('/', 
+ 
+router.post('/', 
   roleBasedAccessControlMiddleware([
       CONSTANTS.ROLES.MODERATOR,
       CONSTANTS.ROLES.REQUESTER,
@@ -40,6 +38,7 @@ router.get('/:id',
 router.post('/',
   roleBasedAccessControlMiddleware([CONSTANTS.ROLES.MODERATOR]),
   schemaValidatorMiddleware(createVendorSchema), 
+  isMyOrganizationMiddleware,
   createVendorController
 );
 

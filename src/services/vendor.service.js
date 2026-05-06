@@ -48,8 +48,8 @@ export const listVendorsService = async (query, { org_id }) => {
     return await findMany(
         vendors,
         eq(vendors.org_id, org_id),
-        query.start,
-        query.end,
+        query.start || 0,
+        query.end || 20,
     );
 };
 
