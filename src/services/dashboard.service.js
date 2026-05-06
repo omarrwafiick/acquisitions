@@ -20,19 +20,19 @@ const handleModeratorInfo = async (org_id) => {
     WITH pos_stats AS (
         SELECT
             COUNT(*) FILTER (
-                WHERE po.status = 'approved'
+                WHERE po.status = '${CONSTANTS.PURCHASE_ORDER.STATUS.APPROVED}'
             ) AS approved,
 
             COUNT(*) FILTER (
-                WHERE po.status = 'awaiting'
+                WHERE po.status = '${CONSTANTS.PURCHASE_ORDER.STATUS.AWAITING}'
             ) AS awaiting,
 
             COUNT(*) FILTER (
-                WHERE po.status = 'sent'
+                WHERE po.status = '${CONSTANTS.PURCHASE_ORDER.STATUS.SENT}'
             ) AS sent,
 
             COUNT(*) FILTER (
-                WHERE po.status = 'completed'
+                WHERE po.status = '${CONSTANTS.PURCHASE_ORDER.STATUS.COMPLETED}'
             ) AS completed,
 
             COALESCE(
@@ -85,19 +85,19 @@ const handleRequesterInfo = async (org_id, user_id) => {
             COUNT(*) AS total,
 
             COUNT(*) FILTER(
-                WHERE status = 'submitted'
+                WHERE status = '${CONSTANTS.REQUEST.STATUS.SUBMITTED}'
             ) AS awaiting,
 
             COUNT(*) FILTER(
-                WHERE status = 'approved'
+                WHERE status = '${CONSTANTS.REQUEST.STATUS.APPROVED}'
             ) AS approved,
             
             COUNT(*) FILTER(
-                WHERE status = 'rejected'
+                WHERE status = '${CONSTANTS.REQUEST.STATUS.REJECTED}'
             ) AS rejected,
 
             COUNT(*) FILTER(
-                WHERE status = 'completed'
+                WHERE status = '${CONSTANTS.REQUEST.STATUS.COMPLETED}'
             ) AS completed
 
         FROM requests
@@ -122,10 +122,10 @@ const handleApproverInfo = async (org_id, user_id) => {
     const query = `
         WITH pos_stats AS (
             SELECT
-                COUNT(*) FILTER (WHERE po.status = 'approved') AS approved,
-                COUNT(*) FILTER (WHERE po.status = 'awaiting') AS awaiting,
-                COUNT(*) FILTER (WHERE po.status = 'sent') AS sent,
-                COUNT(*) FILTER (WHERE po.status = 'completed') AS completed,
+                COUNT(*) FILTER (WHERE po.status = '${CONSTANTS.PURCHASE_ORDER.STATUS.APPROVED}') AS approved,
+                COUNT(*) FILTER (WHERE po.status = '${CONSTANTS.PURCHASE_ORDER.STATUS.AWAITING}') AS awaiting,
+                COUNT(*) FILTER (WHERE po.status = '${CONSTANTS.PURCHASE_ORDER.STATUS.SENT}') AS sent,
+                COUNT(*) FILTER (WHERE po.status = '${CONSTANTS.PURCHASE_ORDER.STATUS.COMPLETED}') AS completed,
                 COALESCE(SUM(po.total_amount), 0) AS total_spent
             FROM purchase_orders po
             INNER JOIN requests r ON po.request_id = r.id

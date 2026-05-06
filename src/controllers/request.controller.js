@@ -7,7 +7,6 @@ export const listRequestsController  = async (req, res, next) => {
 
 export const getRequestByIdController = async (req, res, next) => {
   try {
-    const data = await getRequestByIdService( { id: req.params.id, org_id: req.user.org_id });
 
     responseHandler(req, res, { message: 'request was found!', data }, 200);
   } catch (error) {

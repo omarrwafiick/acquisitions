@@ -1,8 +1,8 @@
 import express from 'express';
 import {
-  listPendingApprovals,
-  approveRequest,
-  rejectRequest,
+  listPendingApprovalsController,
+  approveRequestController,
+  rejectRequestController,
 } from '#controllers/approval.controller.js';
 import authenticationMiddleware from '#middleware/authentication.middleware.js';
 import roleBasedAccessControlMiddleware from '#middleware/roleBasedAccessControl.middleware.js';
@@ -13,10 +13,10 @@ router.use(authenticationMiddleware);
 
 router.use(roleBasedAccessControlMiddleware(['approver']));
 
-router.get('/pending', listPendingApprovals);
+router.get('/pending', listPendingApprovalsController);
 
-router.post('/:requestId/approve', approveRequest);
+router.post('/:id/approve', approveRequestController);
 
-router.post('/:requestId/reject', rejectRequest);
+router.post('/:id/reject', rejectRequestController);
 
 export default router;
