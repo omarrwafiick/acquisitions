@@ -14,7 +14,7 @@ export const createOrganization = async (req, res, next) => {
 
 export const getMyOrganization = async (req, res, next) => {
   try {
-    const org = await getMyOrganizationService(req.data);
+    const org = await getMyOrganizationService({ org_id: req.user.org_id });
 
     responseHandler(req, res, { message: 'organization was found!', data: org }, 200);
   } catch (error) {

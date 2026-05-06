@@ -1,15 +1,14 @@
 import express from 'express';
 import {
-  listRequests,
-  getRequestById,
-  submitRequest,
+  listRequestsController,
+  getRequestByIdController,
+  submitRequestController,
 } from '#controllers/request.controller.js';
 import authenticationMiddleware from '#middleware/authentication.middleware.js';
 import schemaValidatorMiddleware from '#middleware/schemaValidator.middleware.js';
-import isMyOrganizationMiddleware from '#middleware/isMyOrganization.middleware.js';
 import roleBasedAccessControlMiddleware from '#middleware/roleBasedAccessControl.middleware.js';
 import {
-  createRequestSchema,
+  submitRequestSchema,
   updateRequestSchema,
 } from '#validations/request.validator.js';
 import { CONSTANTS } from '#services/constants.service.js';
@@ -18,21 +17,20 @@ const router = express.Router();
 
 router.use(authenticationMiddleware);
 
-router.use(isMyOrganizationMiddleware);
-
-router.get('/', 
+router.post('/', 
   roleBasedAccessControlMiddleware([CONSTANTS.ROLES.APPROVER, CONSTANTS.ROLES.REQUESTER]),
-  listRequests
+  listRequestsController
 );
 
 router.get('/:id',
   roleBasedAccessControlMiddleware([CONSTANTS.ROLES.APPROVER, CONSTANTS.ROLES.REQUESTER]),
-  getRequestById
+  getRequestByIdController
 );
 
 router.post('/:id/submit', 
   roleBasedAccessControlMiddleware([CONSTANTS.ROLES.REQUESTER]),
-  submitRequest
+  schemaValidatorMiddleware(submitRequestSchema),
+  submitRequestController
 );
 
 export default router;

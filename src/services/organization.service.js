@@ -26,17 +26,9 @@ export const createOrganizationService = async (payload) => {
   return { id: newOrg.id }
 };
 
-export const getMyOrganizationService = async (payload) => {
-    return await findOneWithJoin(
-        organizations, 
-        users, 
-        undefined, 
-        eq(users.org_id, organizations.id),
-        {
-            id: organizations.id,
-            name: organizations.name,
-            slug: organizations.slug,
-            createdAt: organizations.created_at,
-        }
+export const getMyOrganizationService = async ({ org_id }) => {
+    return await findOne(
+        organizations,
+        eq(organizations.id, org_id)
     );
 };

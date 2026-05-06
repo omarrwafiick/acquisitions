@@ -15,7 +15,7 @@ export const listVendorsController = async (req, res, next) => {
   try {
     const data = await listVendorsService(
       req.body.options, 
-      { 
+      {
         org_id: req.user.org_id,
       }
     );
@@ -28,7 +28,7 @@ export const listVendorsController = async (req, res, next) => {
 
 export const getVendorByIdController = async (req, res, next) => {
   try {
-    const data = await getVendorByIdService(req.params.id, { org_id: req.user.org_id });
+    const data = await getVendorByIdService( { id: req.params.id, org_id: req.user.org_id });
 
     responseHandler(req, res, { message: 'vendor was found!', data }, 200);
   } catch (error) {

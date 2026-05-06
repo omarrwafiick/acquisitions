@@ -4,14 +4,11 @@ import authenticationMiddleware from '#middleware/authentication.middleware.js';
 import schemaValidatorMiddleware from '#middleware/schemaValidator.middleware.js';
 import roleBasedAccessControlMiddleware from '#middleware/roleBasedAccessControl.middleware.js';
 import { createOrganizationSchema } from '#validations/organization.validator.js';
-import isMyOrganizationMiddleware from '#middleware/isMyOrganization.middleware.js';
 import { CONSTANTS } from '#services/constants.service.js';
 
 const router = express.Router();
 
 router.post('/', schemaValidatorMiddleware(createOrganizationSchema), createOrganization);
-
-router.use(authenticationMiddleware);
 
 router.use(authenticationMiddleware);
 

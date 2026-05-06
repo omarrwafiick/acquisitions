@@ -7,7 +7,6 @@ import {
 import authenticationMiddleware from '#middleware/authentication.middleware.js';
 import schemaValidatorMiddleware from '#middleware/schemaValidator.middleware.js';
 import roleBasedAccessControlMiddleware from '#middleware/roleBasedAccessControl.middleware.js';
-import isMyOrganizationMiddleware from '#middleware/isMyOrganization.middleware.js';
 import { createVendorSchema } from '#validations/vendor.validator.js';
 import { CONSTANTS } from '#services/constants.service.js';
 
@@ -37,8 +36,7 @@ router.get('/:id',
 
 router.post('/',
   roleBasedAccessControlMiddleware([CONSTANTS.ROLES.MODERATOR]),
-  schemaValidatorMiddleware(createVendorSchema), 
-  isMyOrganizationMiddleware,
+  schemaValidatorMiddleware(createVendorSchema),
   createVendorController
 );
 

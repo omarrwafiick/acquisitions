@@ -1,14 +1,13 @@
 import express from 'express';
 import {
-  createPurchaseOrder,
-  listPurchaseOrders,
-  getPurchaseOrderById,
-  sendPurchaseOrder,
-  completePurchaseOrder,
+  createPurchaseOrderController,
+  listPurchaseOrdersController,
+  getPurchaseOrderByIdController,
+  sendPurchaseOrderController,
+  completePurchaseOrderController,
 } from '#controllers/purchaseOrder.controller.js';
 import authenticationMiddleware from '#middleware/authentication.middleware.js';
 import schemaValidatorMiddleware from '#middleware/schemaValidator.middleware.js';
-import isMyOrganizationMiddleware from '#middleware/isMyOrganization.middleware.js';
 import roleBasedAccessControlMiddleware from '#middleware/roleBasedAccessControl.middleware.js';
 import { createPurchaseOrderSchema } from '#validations/purchaseOrder.validator.js';
 import { CONSTANTS } from '#services/constants.service.js';
@@ -17,16 +16,14 @@ const router = express.Router();
 
 router.use(authenticationMiddleware);
 
-router.use(isMyOrganizationMiddleware);
-
-router.get('/',
+router.post('/',
   roleBasedAccessControlMiddleware([
       CONSTANTS.ROLES.MODERATOR, 
       CONSTANTS.ROLES.REQUESTER,
       CONSTANTS.ROLES.APPROVER,
     ]
   ),
-  listPurchaseOrders
+  listPurchaseOrdersController
 );
 
 router.get('/:id', 
@@ -36,15 +33,18 @@ router.get('/:id',
       CONSTANTS.ROLES.APPROVER,
     ]
   ),
-  getPurchaseOrderById
+  getPurchaseOrderByIdController
 );
 
 router.use(roleBasedAccessControlMiddleware([CONSTANTS.ROLES.MODERATOR]));
 
-router.post('/', schemaValidatorMiddleware(createPurchaseOrderSchema), createPurchaseOrder);
+router.post('/', 
+  schemaValidatorMiddleware(createPurchaseOrderSchema),
+  createPurchaseOrderController
+);
 
-router.post('/:id/send', sendPurchaseOrder);
+router.post('/:id/send', sendPurchaseOrderController);
 
-router.post('/:id/complete', completePurchaseOrder);
+router.post('/:id/complete', completePurchaseOrderController);
 
 export default router;

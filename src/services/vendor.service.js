@@ -5,9 +5,12 @@ import DuplicateException from '#exceptions/duplicate.exception.js';
 import NotFoundException from '#exceptions/notFound.exception.js';
 import { organizations } from '#models/organization.model.js';
 import { createAuditLogService } from './auditLog.service.js';
+import { isUserLinkedToOrganizationService } from './user.service.js';
 
 export const createVendorService = async (payload) => {
     const { email, name, org_id, user_id } = payload;
+    
+    await isUserLinkedToOrganizationService(org_id, user_id);
 
     const organization = await findOne(organizations, eq(organizations.id, org_id));
 
@@ -44,7 +47,7 @@ export const createVendorService = async (payload) => {
     return newVendor;
 };
 
-export const listVendorsService = async (query, { org_id }) => {
+export const listVendorsService = async (query = {}, { org_id }) => {
     return await findMany(
         vendors,
         eq(vendors.org_id, org_id),
@@ -53,7 +56,7 @@ export const listVendorsService = async (query, { org_id }) => {
     );
 };
 
-export const getVendorByIdService = async (id, { org_id }) => {
+export const getVendorByIdService = async ({ id, org_id }) => {
     return await findOne(
         vendors, 
         and(

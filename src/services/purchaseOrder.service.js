@@ -2,12 +2,15 @@ import NotFoundException from "#exceptions/notFound.exception.js";
 import { users } from "#models/user.model.js";
 import { and, eq } from "drizzle-orm";
 import { createAuditLogService } from "./auditLog.service";
-import { findOne } from "#repositories/main.repository.js";
+import { findMany, findManyWithJoin, findOne, findOneWithJoin } from "#repositories/main.repository.js";
+import { purchase_orders } from "#models/purchase_order.model.js";
+import { requests } from "#models/request.model.js";
+import { isUserLinkedToOrganizationServiceService } from "./user.service";
 
-export const createPurchaseOrder = async (payload) => {
+export const createPurchaseOrderService = async (payload) => {
     const { org_id, user_id } = payload;
 
-    await isUserExist(org_id, user_id);
+    await isUserLinkedToOrganizationService(org_id, user_id);
 
     const newPurchaseOrder = {
         id: 0
@@ -23,14 +26,32 @@ export const createPurchaseOrder = async (payload) => {
     });
 };
 
-export const listPurchaseOrders = async (query) => {};
+export const listPurchaseOrdersService = async (query = {}, { org_id }) => {
+    return await findManyWithJoin(
+        purchase_orders,
+        requests,
+        eq(requests.org_id, org_id),
+        eq(purchase_orders.request_id, requests.id),
+        query.start ?? 0,
+        query.end ?? 20,
+    );
+};
+export const getPurchaseOrderByIdService = async ({ id, org_id }) => {
+    return await findOneWithJoin(
+        purchase_orders,
+        requests,
+        and(
+            eq(purchase_orders.id, id),
+            eq(requests.org_id, org_id),
+        ),
+        eq(purchase_orders.request_id, requests.id),
+    );
+};
 
-export const getPurchaseOrderById = async (id) => {};
-
-export const sendPurchaseOrder = async (payload) => {
+export const sendPurchaseOrderService = async (payload) => {
     const { org_id, user_id } = payload;
 
-    await isUserExist(org_id, user_id);
+    await isUserLinkedToOrganizationService(org_id, user_id);
 
     const newPurchaseOrder = {
         id: 0
@@ -46,10 +67,10 @@ export const sendPurchaseOrder = async (payload) => {
     });
 };
 
-export const completePurchaseOrder = async (payload) => {
+export const completePurchaseOrderService = async (payload) => {
     const { org_id, user_id } = payload;
 
-    await isUserExist(org_id, user_id);
+    await isUserLinkedToOrganizationServiceService(org_id, user_id);
 
     const newPurchaseOrder = {
         id: 0
@@ -63,19 +84,4 @@ export const completePurchaseOrder = async (payload) => {
         action: 'complete_purchase_order',
         metadata: {}
     });
-};
-
-const isUserExist = async (org_id, user_id) => {
-    const user = await findOne(
-        users,
-        and(
-            eq(users.id, user_id),
-            eq(users.org_id, org_id),
-        )
-    );
-
-    if(!user)
-        throw new NotFoundException("user was not found with organization passed.");
-
-    return user;
 };

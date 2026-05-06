@@ -1,3 +1,3 @@
-export const createRequestSchema = {};
+export const submitRequestSchema = {};
 
 export const updateRequestSchema = {};

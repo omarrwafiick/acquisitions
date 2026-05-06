@@ -1,12 +1,20 @@
 import { users } from "#models/user.model.js";
-import { findOne } from "#repositories/main.repository.js";
+import { findMany, findOne } from "#repositories/main.repository.js";
 import { eq } from "drizzle-orm";
 import { createAuditLogService } from "./auditLog.service";
 import NotFoundException from '#exceptions/notFound.exception.js';
+import { approvals } from "#models/approval.model.js";
 
-export const listPendingApprovals = async (query) => {};
+export const listPendingApprovals = async (query = {}, { org_id }) => {
+    return await findMany(
+        approvals,
+        eq(approvals.org_id, org_id),
+        query.start ?? 0,
+        query.end ?? 20,
+    );
+};
 
-export const approveRequest = async (requestId, approverId) => {
+export const approveRequest = async ({ requestId, approverId, org_id }) => {
     const { requester, approver } = await fetchRequesterAndApprover(requestId, approverId);
 
     await createAuditLogService({
@@ -19,7 +27,7 @@ export const approveRequest = async (requestId, approverId) => {
     });
 };
 
-export const rejectRequest = async (requestId, approverId) => {
+export const rejectRequest = async ({ requestId, approverId, org_id }) => {
     const { requester, approver } = await fetchRequesterAndApprover(requestId, approverId);
 
     await createAuditLogService({
