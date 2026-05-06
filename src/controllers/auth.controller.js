@@ -1,9 +1,9 @@
 import responseHandler from '#utils/response.js';
 import { createUser, checkUserExistance, logoutUser } from '#services/auth.service.js';
 
-export const register = async (req, res, next) => {
+export const register = (addMember) => async (req, res, next) => {
   try {
-    const data = await createUser(req, res);
+    const data = await createUser(req, res, addMember);
 
     responseHandler(req, res, { message: 'success account creation', data }, 201);
   } catch (error) {

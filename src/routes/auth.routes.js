@@ -10,7 +10,7 @@ const router = express.Router();
 
 router.post('/login', schemaValidatorMiddleware(loginSchema), login);
 
-router.post('/register', schemaValidatorMiddleware(registerSchema), register);
+router.post('/register', schemaValidatorMiddleware(registerSchema), register(false));
 
 router.use(authenticationMiddleware);
 
@@ -19,7 +19,7 @@ router.post('/logout', logout);
 router.post('/member',
     roleBaseAccessControlMiddleware([CONSTANTS.ROLES.MODERATOR]),
     schemaValidatorMiddleware(addMemberSchema), 
-    register
+    register(true)
 );
 
 export default router;

@@ -2,6 +2,7 @@ import { cookies } from '#utils/cookies.js';
 import JwtTokenAuthenticationException from '#exceptions/JwtTokenAuthentication.exception.js';
 import { jwtToken } from '#utils/security.js';
 import responseHandler from '#utils/response.js';
+import logger from '#config/logger.js';
 
 const authenticationMiddleware = (req, res, next) => {
   try {

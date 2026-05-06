@@ -1,16 +1,18 @@
 import DuplicateException from '#exceptions/duplicate.exception.js';
 import NotFoundException from '#exceptions/notFound.exception.js';
+import ForbiddenException from '#exceptions/forbidden.exception.js';
 import InvalidPasswordException from '#exceptions/invalidPassword.exception.js';
 import { userPassword } from '#utils/security.js';
 import logger from '#config/logger.js';
-import { create, findOne } from '#repositories/main.repository.js';
+import { create, findOne, findOneWithJoin } from '#repositories/main.repository.js';
 import { users } from '#models/user.model.js';
 import { organizations } from '#models/organization.model.js';
-import { eq } from 'drizzle-orm';
+import { and, eq, or } from 'drizzle-orm';
 import { jwtToken } from '#utils/security.js';
 import { cookies } from '#utils/cookies.js';
+import { CONSTANTS } from './constants.service.js';
 
-export const createUser = async (req, res) => {
+export const createUser = async (req, res, addMember) => {
   const { name, email, password, role, org_id } = req.data;
   
   const existingUser = await findOne(users, eq(users.email, email));
@@ -22,6 +24,9 @@ export const createUser = async (req, res) => {
 
   if (!organization)
     throw new NotFoundException('Organization was not found.');
+
+  if(role === CONSTANTS.ROLES.MODERATOR)
+    await isOrganizationHasModerator({ org_id });
 
   const hashedPassword = await userPassword.hash(password);
 
@@ -38,12 +43,33 @@ export const createUser = async (req, res) => {
 
   logger.info(`new user was created with id: ${newUser.id}`);
   
-  const token = await jwtToken.sign(newUser);
+  if(!addMember){
+    const token = await jwtToken.sign(newUser);
 
-  cookies.set(res, 'token', token);
+    cookies.set(res, 'token', token);
+  }
   
   return mapUserInfo(newUser);
 };
+
+const isOrganizationHasModerator = async ({ org_id }) => {
+  const organizationHasModerator = await findOneWithJoin(
+    organizations,
+    users,
+
+    and(
+      eq(organizations.id, org_id),
+      eq(users.role, CONSTANTS.ROLES.MODERATOR)
+    ),
+
+    eq(users.org_id, organizations.id)
+  );
+
+  if (organizationHasModerator)
+    throw new ForbiddenException('Organization has already a moderator.');
+
+  return;
+}
 
 export const checkUserExistance = async (req, res) => {
   const { email, password } = req.data;
