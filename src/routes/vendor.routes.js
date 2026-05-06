@@ -9,6 +9,7 @@ import schemaValidatorMiddleware from '#middleware/schemaValidator.middleware.js
 import roleBasedAccessControlMiddleware from '#middleware/roleBasedAccessControl.middleware.js';
 import isMyOrganizationMiddleware from '#middleware/isMyOrganization.middleware.js';
 import { createVendorSchema } from '#validations/vendor.validator.js';
+import { CONSTANTS } from '#services/constants.service.js';
 
 const router = express.Router();
 
@@ -17,17 +18,27 @@ router.use(authenticationMiddleware);
 router.use(isMyOrganizationMiddleware);
 
 router.get('/', 
-  roleBasedAccessControlMiddleware(['moderator', 'requester', 'approver']),
+  roleBasedAccessControlMiddleware([
+      CONSTANTS.ROLES.MODERATOR,
+      CONSTANTS.ROLES.REQUESTER,
+      CONSTANTS.ROLES.APPROVER,
+    ]
+  ),
   listVendorsController
 );
 
 router.get('/:id',
-  roleBasedAccessControlMiddleware(['moderator', 'requester', 'approver']),
+  roleBasedAccessControlMiddleware([
+      CONSTANTS.ROLES.MODERATOR, 
+      CONSTANTS.ROLES.REQUESTER,
+      CONSTANTS.ROLES.APPROVER,
+    ]
+  ),
   getVendorByIdController
 );
 
 router.post('/',
-  roleBasedAccessControlMiddleware(['moderator']),
+  roleBasedAccessControlMiddleware([CONSTANTS.ROLES.MODERATOR]),
   schemaValidatorMiddleware(createVendorSchema), 
   createVendorController
 );

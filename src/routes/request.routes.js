@@ -12,6 +12,7 @@ import {
   createRequestSchema,
   updateRequestSchema,
 } from '#validations/request.validator.js';
+import { CONSTANTS } from '#services/constants.service.js';
 
 const router = express.Router();
 
@@ -20,17 +21,17 @@ router.use(authenticationMiddleware);
 router.use(isMyOrganizationMiddleware);
 
 router.get('/', 
-  roleBasedAccessControlMiddleware(['approver', 'requester']),
+  roleBasedAccessControlMiddleware([CONSTANTS.ROLES.APPROVER, CONSTANTS.ROLES.REQUESTER]),
   listRequests
 );
 
 router.get('/:id',
-  roleBasedAccessControlMiddleware(['approver', 'requester']),
+  roleBasedAccessControlMiddleware([CONSTANTS.ROLES.APPROVER, CONSTANTS.ROLES.REQUESTER]),
   getRequestById
 );
 
 router.post('/:id/submit', 
-  roleBasedAccessControlMiddleware(['requester']),
+  roleBasedAccessControlMiddleware([CONSTANTS.ROLES.REQUESTER]),
   submitRequest
 );
 

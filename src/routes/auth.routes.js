@@ -4,6 +4,7 @@ import schemaValidatorMiddleware from '#middleware/schemaValidator.middleware.js
 import { loginSchema, registerSchema, addMemberSchema } from '#validations/auth.validator.js';
 import authenticationMiddleware from '#middleware/authentication.middleware.js';
 import roleBaseAccessControlMiddleware from '#middleware/roleBasedAccessControl.middleware.js';
+import { CONSTANTS } from '#services/constants.service.js';
 
 const router = express.Router();
 
@@ -16,7 +17,7 @@ router.use(authenticationMiddleware);
 router.post('/logout', logout);
 
 router.post('/member',
-    roleBaseAccessControlMiddleware(["moderator"]),
+    roleBaseAccessControlMiddleware([CONSTANTS.ROLES.MODERATOR]),
     schemaValidatorMiddleware(addMemberSchema), 
     register
 );
