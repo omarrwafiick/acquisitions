@@ -16,7 +16,7 @@ import { isUserLinkedToOrganizationService } from './user.service.js';
 import { CONSTANTS } from './constants.service.js';
 import ForbiddenException from '#exceptions/forbidden.exception.js';
 import { vendors } from '#models/vendor.mode.js';
-import { sendEmailService } from './email.service.js';
+import { sendEmailService, vendorEmailBodyBuilder } from './email.service.js';
 
 export const listPurchaseOrdersService = async (query = {}, payload) => {
   const { org_id } = payload;
@@ -163,32 +163,13 @@ const handleVendorSentRequest = async purchaseOrder => {
     findOne(vendors, eq(vendors.id, purchaseOrder.vendor_id)),
   ]);
 
-  if (!requester) throw new NotFoundException('Requester not found');
+  if (!requester) 
+    throw new NotFoundException('Requester not found');
 
-  if (!vendor) throw new NotFoundException('Vendor not found');
+  if (!vendor) 
+    throw new NotFoundException('Vendor not found');
 
-  const vendorEmailBody = `
-        Dear ${vendor.name || 'Partner'},
-
-        You have received a new official Purchase Order.
-
-        Purchase Order Details:
-        - PO ID: ${purchaseOrder.id}
-        - Status: SENT
-        - Total Amount: ${purchaseOrder.total_amount}
-
-        This order has been issued by our procurement team. Please review the attached details and confirm receipt.
-
-        Next Steps:
-        1. Acknowledge receipt of this Purchase Order
-        2. Confirm estimated delivery timeline
-        3. Contact us if any clarification is needed
-
-        We look forward to your prompt response.
-
-        Best regards,
-        Procurement Team
-    `;
+  const vendorEmailBody = vendorEmailBodyBuilder({ vendor, purchaseOrder });
 
   await sendEmailService(
     requester.email,
@@ -215,7 +196,8 @@ export const completePurchaseOrderService = async payload => {
     }
   );
 
-  if (!purchaseOrder) throw new NotFoundException('Purchase order not found');
+  if (!purchaseOrder) 
+    throw new NotFoundException('Purchase order not found');
 
   if (purchaseOrder.org_id !== org_id)
     throw new ForbiddenException('Unauthorized access to purchase order');

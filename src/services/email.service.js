@@ -31,3 +31,29 @@ export const sendEmailService = async (from, to, subject, body) => {
     text: body,
   });
 };
+
+export const vendorEmailBodyBuilder = (payload) => {
+  const { vendor, purchaseOrder } = payload;
+  return `
+    Dear ${vendor.name || 'Partner'},
+
+    You have received a new official Purchase Order.
+
+    Purchase Order Details:
+    - PO ID: ${purchaseOrder.id}
+    - Status: SENT
+    - Total Amount: ${purchaseOrder.total_amount}
+
+    This order has been issued by our procurement team. Please review the attached details and confirm receipt.
+
+    Next Steps:
+    1. Acknowledge receipt of this Purchase Order
+    2. Confirm estimated delivery timeline
+    3. Contact us if any clarification is needed
+
+    We look forward to your prompt response.
+
+    Best regards,
+    Procurement Team
+  `;
+};
