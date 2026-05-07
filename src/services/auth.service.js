@@ -3,7 +3,7 @@ import NotFoundException from '#exceptions/notFound.exception.js';
 import ForbiddenException from '#exceptions/forbidden.exception.js';
 import InvalidPasswordException from '#exceptions/invalidPassword.exception.js';
 import { userPassword } from '#utils/security.js';
-import logger from '#config/logger.js';
+import logger, { logEventObj } from '#config/logger.js';
 import {
   create,
   findOne,
@@ -31,7 +31,7 @@ export const createUser = async (req, res, addMember) => {
   if (!organization) throw new NotFoundException('Organization was not found.');
 
   if (role === CONSTANTS.ROLES.MODERATOR)
-    await isOrganizationHasModerator({ org_id });
+    await isOrganizationHasModerator({ org_id, req });
 
   const hashedPassword = await userPassword.hash(password);
 
@@ -43,9 +43,36 @@ export const createUser = async (req, res, addMember) => {
     org_id,
   });
 
-  logger.info(`new user was created with id: ${newUser.id}`);
+  logger.info(logEventObj(
+      "Account Creation",
+      newUser.id,
+      org_id,
+      "register",
+      newUser.id,
+      {
+        method: req.method,
+        path: req.path,
+        ip: req.ip,
+        userAgent: req.headers['user-agent']
+      }
+    )
+  );
 
   if (!addMember) {
+    logger.info(logEventObj(
+        "Grant JWT while register new account",
+        newUser.id,
+        org_id,
+        "JWT creation",
+        newUser.id,
+        {
+          method: req.method,
+          path: req.path,
+          ip: req.ip,
+          userAgent: req.headers['user-agent']
+        }
+      )
+    );
     const token = await jwtToken.sign(newUser);
 
     cookies.set(res, 'token', token);
@@ -54,7 +81,7 @@ export const createUser = async (req, res, addMember) => {
   return mapUserInfo(newUser);
 };
 
-const isOrganizationHasModerator = async ({ org_id }) => {
+const isOrganizationHasModerator = async ({ org_id,  req }) => {
   const organizationHasModerator = await findOneWithJoin(
     organizations,
     users,
@@ -67,8 +94,24 @@ const isOrganizationHasModerator = async ({ org_id }) => {
     eq(users.org_id, organizations.id)
   );
 
-  if (organizationHasModerator)
+  if (organizationHasModerator){
+    logger.info(logEventObj(
+        "Attempt to create new moderator to organization already has onw",
+        "UNKNOWN",
+        org_id,
+        "Business rule violation",
+        org_id,
+        {
+          method: req.method,
+          path: req.path,
+          ip: req.ip,
+          userAgent: req.headers['user-agent']
+        }
+      )
+    );
+
     throw new ForbiddenException('Organization has already a moderator.');
+  }
 
   return;
 };
@@ -87,6 +130,21 @@ export const checkUserExistance = async (req, res) => {
   const userHasNoToken = !cookies.get(req, 'token');
 
   if (userHasNoToken) {
+    logger.info(logEventObj(
+        "Grant JWT while register new account",
+        user.id,
+        user.org_id,
+        "JWT creation",
+        newUser.id,
+        {
+          method: req.method,
+          path: req.path,
+          ip: req.ip,
+          userAgent: req.headers['user-agent']
+        }
+      )
+    );
+
     const token = await jwtToken.sign(user);
 
     cookies.set(res, 'token', token);
