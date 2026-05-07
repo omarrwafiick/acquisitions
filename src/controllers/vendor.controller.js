@@ -1,37 +1,54 @@
-import { createVendorService, getVendorByIdService, listVendorsService } from '#services/vendor.service.js';
+import {
+  createVendorService,
+  getVendorByIdService,
+  listVendorsService,
+} from '#services/vendor.service.js';
 import responseHandler from '#utils/response.js';
 
 export const createVendorController = async (req, res, next) => {
   try {
-    const data = await createVendorService({ ...req.body, user_id: req.user.id });
+    const data = await createVendorService({
+      ...req.body,
+      user_id: req.user.id,
+    });
 
-    responseHandler(req, res, { message: 'success vendor creation!', data }, 201);
+    responseHandler(
+      req,
+      res,
+      { message: 'success vendor creation!', data },
+      201
+    );
   } catch (error) {
-    responseHandler(req, res, error, error.status||400);
+    responseHandler(req, res, error, error.status || 400);
   }
 };
 
 export const listVendorsController = async (req, res, next) => {
   try {
-    const data = await listVendorsService(
-      req.body.options, 
-      {
-        org_id: req.user.org_id,
-      }
-    );
+    const data = await listVendorsService(req.body.options, {
+      org_id: req.user.org_id,
+    });
 
-    responseHandler(req, res, { message: 'vendors list was found!', data }, 200);
+    responseHandler(
+      req,
+      res,
+      { message: 'vendors list was found!', data },
+      200
+    );
   } catch (error) {
-    responseHandler(req, res, error, error.status||400);
+    responseHandler(req, res, error, error.status || 400);
   }
 };
 
 export const getVendorByIdController = async (req, res, next) => {
   try {
-    const data = await getVendorByIdService( { id: req.params.id, org_id: req.user.org_id });
+    const data = await getVendorByIdService({
+      id: req.params.id,
+      org_id: req.user.org_id,
+    });
 
     responseHandler(req, res, { message: 'vendor was found!', data }, 200);
   } catch (error) {
-    responseHandler(req, res, error, error.status||400);
+    responseHandler(req, res, error, error.status || 400);
   }
 };

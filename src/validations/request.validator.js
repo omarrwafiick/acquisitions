@@ -5,18 +5,19 @@ export const submitRequestSchema = z.object({
 
   reason: z.string().max(5000).trim().optional(),
 
-  items: z.array(
-    z.object({
-      name: z.string().min(1).max(255).trim(),
+  items: z
+    .array(
+      z.object({
+        name: z.string().min(1).max(255).trim(),
 
-      quantity: z.coerce.number().int().positive(),
+        quantity: z.coerce.number().int().positive(),
 
-      estimatedPrice: z.coerce.number().nonnegative(),
-    })
-  ).min(1),
+        estimatedPrice: z.coerce.number().nonnegative(),
+      })
+    )
+    .min(1),
 });
 
 export const updateRequestSchema = z.object({
-  updateReason: z.string().max(255).toLowerCase().trim()
+  updateReason: z.string().max(255).toLowerCase().trim(),
 });
-

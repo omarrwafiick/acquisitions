@@ -15,12 +15,9 @@ export const organizations = pgTable(
 
     slug: varchar('slug', { length: 255 }).notNull(),
 
-    created_at: timestamp('created_at')
-      .defaultNow()
-      .notNull(),
+    created_at: timestamp('created_at').defaultNow().notNull(),
   },
-  (table) => ({
-    slugIdx: uniqueIndex('organizations_slug_idx')
-      .on(table.slug),
+  table => ({
+    slugIdx: uniqueIndex('organizations_slug_idx').on(table.slug),
   })
 );

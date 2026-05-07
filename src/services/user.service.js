@@ -8,26 +8,20 @@ export const listUsersService = async (query = {}, payload) => {
   const { user_id, org_id } = payload;
   return await findMany(
     users,
-    and(
-      eq(users.org_id, org_id),
-      not(eq(users.id, user_id))
-    ),
+    and(eq(users.org_id, org_id), not(eq(users.id, user_id))),
     query.start ?? 0,
-    query.end ?? 20,
+    query.end ?? 20
   );
 };
 
 export const isUserLinkedToOrganizationService = async (org_id, user_id) => {
-    const user = await findOne(
-        users,
-        and(
-            eq(users.id, user_id),
-            eq(users.org_id, org_id),
-        )
-    );
+  const user = await findOne(
+    users,
+    and(eq(users.id, user_id), eq(users.org_id, org_id))
+  );
 
-    if(!user)
-        throw new NotFoundException("user was not found with organization passed.");
+  if (!user)
+    throw new NotFoundException('user was not found with organization passed.');
 
-    return user;
+  return user;
 };

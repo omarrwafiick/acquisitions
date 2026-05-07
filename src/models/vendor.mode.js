@@ -27,12 +27,9 @@ export const vendors = pgTable(
       length: 255,
     }),
 
-    created_at: timestamp('created_at')
-      .defaultNow()
-      .notNull(),
+    created_at: timestamp('created_at').defaultNow().notNull(),
   },
-  (table) => ({
-    orgIdx: index('vendors_org_idx')
-      .on(table.org_id),
+  table => ({
+    orgIdx: index('vendors_org_idx').on(table.org_id),
   })
 );

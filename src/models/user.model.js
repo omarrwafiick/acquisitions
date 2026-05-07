@@ -32,19 +32,13 @@ export const users = pgTable(
       length: 50,
     }).notNull(),
 
-    created_at: timestamp('created_at')
-      .defaultNow()
-      .notNull(),
+    created_at: timestamp('created_at').defaultNow().notNull(),
 
-    updated_at: timestamp('updated_at')
-      .defaultNow()
-      .notNull(),
+    updated_at: timestamp('updated_at').defaultNow().notNull(),
   },
-  (table) => ({
-    emailIdx: uniqueIndex('users_email_idx')
-      .on(table.email),
+  table => ({
+    emailIdx: uniqueIndex('users_email_idx').on(table.email),
 
-    orgIdx: index('users_org_id_idx')
-      .on(table.org_id),
+    orgIdx: index('users_org_id_idx').on(table.org_id),
   })
 );

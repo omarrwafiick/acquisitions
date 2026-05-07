@@ -19,16 +19,11 @@ export const audit_logs = pgTable(
       .notNull()
       .references(() => organizations.id),
 
-    actor_id: integer('actor_id')
-      .references(() => users.id),
+    actor_id: integer('actor_id').references(() => users.id),
 
-    entity_type: varchar(
-      'entity_type',
-      { length: 100 }
-    ).notNull(),
+    entity_type: varchar('entity_type', { length: 100 }).notNull(),
 
-    entity_id: integer('entity_id')
-      .notNull(),
+    entity_id: integer('entity_id').notNull(),
 
     action: varchar('action', {
       length: 100,
@@ -36,14 +31,10 @@ export const audit_logs = pgTable(
 
     metadata: jsonb('metadata'),
 
-    created_at: timestamp('created_at')
-      .defaultNow()
-      .notNull(),
+    created_at: timestamp('created_at').defaultNow().notNull(),
   },
-  (table) => ({
-    orgCreatedIdx: index(
-      'audit_org_created_idx'
-    ).on(
+  table => ({
+    orgCreatedIdx: index('audit_org_created_idx').on(
       table.org_id,
       table.created_at
     ),

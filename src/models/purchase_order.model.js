@@ -32,23 +32,16 @@ export const purchase_orders = pgTable(
       length: 50,
     }).notNull(),
 
-    total_amount: numeric(
-      'total_amount',
-      {
-        precision: 12,
-        scale: 2,
-      }
-    ).notNull(),
+    total_amount: numeric('total_amount', {
+      precision: 12,
+      scale: 2,
+    }).notNull(),
 
-    created_at: timestamp('created_at')
-      .defaultNow()
-      .notNull(),
+    created_at: timestamp('created_at').defaultNow().notNull(),
   },
-  (table) => ({
-    requestIdx: index('po_request_idx')
-      .on(table.request_id),
+  table => ({
+    requestIdx: index('po_request_idx').on(table.request_id),
 
-    vendorIdx: index('po_vendor_idx')
-      .on(table.vendor_id),
+    vendorIdx: index('po_vendor_idx').on(table.vendor_id),
   })
 );

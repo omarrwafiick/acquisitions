@@ -7,8 +7,7 @@ import logger from '#config/logger.js';
 const authenticationMiddleware = (req, res, next) => {
   try {
     const token = cookies.get(req, 'token');
-    if(!token)
-      throw new JwtTokenAuthenticationException();
+    if (!token) throw new JwtTokenAuthenticationException();
 
     req.user = jwtToken.verify(token);
     next();

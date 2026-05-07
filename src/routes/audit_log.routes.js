@@ -8,9 +8,10 @@ const router = express.Router();
 
 router.use(authenticationMiddleware);
 
-router.post('/', 
-    roleBasedAccessControlMiddleware([CONSTANTS.ROLES.MODERATOR]),
-    listAuditLogsController
+router.post(
+  '/',
+  roleBasedAccessControlMiddleware([CONSTANTS.ROLES.MODERATOR]),
+  listAuditLogsController
 );
 
 export default router;

@@ -16,29 +16,30 @@ const router = express.Router();
 
 router.use(authenticationMiddleware);
 
-router.post('/',
+router.post(
+  '/',
   roleBasedAccessControlMiddleware([
-      CONSTANTS.ROLES.MODERATOR, 
-      CONSTANTS.ROLES.REQUESTER,
-      CONSTANTS.ROLES.APPROVER,
-    ]
-  ),
+    CONSTANTS.ROLES.MODERATOR,
+    CONSTANTS.ROLES.REQUESTER,
+    CONSTANTS.ROLES.APPROVER,
+  ]),
   listPurchaseOrdersController
 );
 
-router.get('/:id', 
+router.get(
+  '/:id',
   roleBasedAccessControlMiddleware([
-      CONSTANTS.ROLES.MODERATOR, 
-      CONSTANTS.ROLES.REQUESTER,
-      CONSTANTS.ROLES.APPROVER,
-    ]
-  ),
+    CONSTANTS.ROLES.MODERATOR,
+    CONSTANTS.ROLES.REQUESTER,
+    CONSTANTS.ROLES.APPROVER,
+  ]),
   getPurchaseOrderByIdController
 );
 
 router.use(roleBasedAccessControlMiddleware([CONSTANTS.ROLES.MODERATOR]));
 
-router.post('/', 
+router.post(
+  '/',
   schemaValidatorMiddleware(createPurchaseOrderSchema),
   createPurchaseOrderController
 );

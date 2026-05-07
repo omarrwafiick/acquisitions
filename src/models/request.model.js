@@ -25,15 +25,13 @@ export const requests = pgTable(
       .notNull()
       .references(() => users.id),
 
-    approver_id: integer('approver_id')
-      .references(() => users.id),
+    approver_id: integer('approver_id').references(() => users.id),
 
-    updated_at : timestamp('updated_at')
-      .defaultNow(),
-    
+    updated_at: timestamp('updated_at').defaultNow(),
+
     update_reason: varchar('update_reason', {
       length: 255,
-    }),  
+    }),
 
     title: varchar('title', {
       length: 255,
@@ -45,18 +43,13 @@ export const requests = pgTable(
       length: 50,
     }).notNull(),
 
-    created_at: timestamp('created_at')
-      .defaultNow()
-      .notNull(),
+    created_at: timestamp('created_at').defaultNow().notNull(),
   },
-  (table) => ({
-    orgIdx: index('requests_org_idx')
-      .on(table.org_id),
+  table => ({
+    orgIdx: index('requests_org_idx').on(table.org_id),
 
-    creatorIdx: index('requests_creator_idx')
-      .on(table.created_by),
+    creatorIdx: index('requests_creator_idx').on(table.created_by),
 
-    statusIdx: index('requests_status_idx')
-      .on(table.status),
+    statusIdx: index('requests_status_idx').on(table.status),
   })
 );

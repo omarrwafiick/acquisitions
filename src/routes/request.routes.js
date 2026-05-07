@@ -17,17 +17,26 @@ const router = express.Router();
 
 router.use(authenticationMiddleware);
 
-router.post('/', 
-  roleBasedAccessControlMiddleware([CONSTANTS.ROLES.APPROVER, CONSTANTS.ROLES.REQUESTER]),
+router.post(
+  '/',
+  roleBasedAccessControlMiddleware([
+    CONSTANTS.ROLES.APPROVER,
+    CONSTANTS.ROLES.REQUESTER,
+  ]),
   listRequestsController
 );
 
-router.get('/:id',
-  roleBasedAccessControlMiddleware([CONSTANTS.ROLES.APPROVER, CONSTANTS.ROLES.REQUESTER]),
+router.get(
+  '/:id',
+  roleBasedAccessControlMiddleware([
+    CONSTANTS.ROLES.APPROVER,
+    CONSTANTS.ROLES.REQUESTER,
+  ]),
   getRequestByIdController
 );
 
-router.post('/:id/submit', 
+router.post(
+  '/:id/submit',
   roleBasedAccessControlMiddleware([CONSTANTS.ROLES.REQUESTER]),
   schemaValidatorMiddleware(submitRequestSchema),
   submitRequestController

@@ -1,35 +1,32 @@
-import DuplicateException from "#exceptions/duplicate.exception.js";
-import { organizations } from "#models/organization.model.js";
-import { users } from "#models/user.model.js";
-import { create, findOne, findOneWithJoin } from "#repositories/main.repository.js";
-import { eq, or } from "drizzle-orm";
+import DuplicateException from '#exceptions/duplicate.exception.js';
+import { organizations } from '#models/organization.model.js';
+import { users } from '#models/user.model.js';
+import {
+  create,
+  findOne,
+  findOneWithJoin,
+} from '#repositories/main.repository.js';
+import { eq, or } from 'drizzle-orm';
 
-export const createOrganizationService = async (payload) => {
+export const createOrganizationService = async payload => {
   const { name, slug } = payload;
-  const resourceExists = await findOne(organizations, 
-    or(
-        eq(organizations.name, name), 
-        eq(organizations.slug, slug),
-    )
+  const resourceExists = await findOne(
+    organizations,
+    or(eq(organizations.name, name), eq(organizations.slug, slug))
   );
 
-  if(resourceExists)
+  if (resourceExists)
     throw new DuplicateException('Organization already exist');
 
-  const newOrg = await create(organizations, 
-    {
-        name,
-        slug,
-    }
-  );
+  const newOrg = await create(organizations, {
+    name,
+    slug,
+  });
 
-  return { id: newOrg.id }
+  return { id: newOrg.id };
 };
 
-export const getMyOrganizationService = async (payload) => {
+export const getMyOrganizationService = async payload => {
   const { org_id } = payload;
-  return await findOne(
-    organizations,
-    eq(organizations.id, org_id)
-  );
+  return await findOne(organizations, eq(organizations.id, org_id));
 };

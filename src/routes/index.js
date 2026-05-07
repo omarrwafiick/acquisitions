@@ -1,14 +1,14 @@
 import express from 'express';
-import authRoutes from'./auth.routes.js';
-import organizationRoutes from'./organization.routes.js';
-import userRoutes from'./user.routes.js';
-import requestRoutes from'./request.routes.js';
-import approvalRoutes from'./approval.routes.js';
-import vendorRoutes from'./vendor.routes.js';
-import purchaseOrderRoutes from'./purchase_order.routes.js';
-import dashboardRoutes from'./dashboard.routes.js';
-import auditLogRoutes from'./audit_log.routes.js';
-import healthRoutes from'./health.routes.js';
+import authRoutes from './auth.routes.js';
+import organizationRoutes from './organization.routes.js';
+import userRoutes from './user.routes.js';
+import requestRoutes from './request.routes.js';
+import approvalRoutes from './approval.routes.js';
+import vendorRoutes from './vendor.routes.js';
+import purchaseOrderRoutes from './purchase_order.routes.js';
+import dashboardRoutes from './dashboard.routes.js';
+import auditLogRoutes from './audit_log.routes.js';
+import healthRoutes from './health.routes.js';
 
 const router = express.Router();
 
@@ -17,7 +17,7 @@ router.use('/health', healthRoutes);
 router.use('/auth', authRoutes);
 
 router.use('/organizations', organizationRoutes);
-  
+
 router.use('/users', userRoutes);
 
 router.use('/requests', requestRoutes);

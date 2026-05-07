@@ -1,22 +1,22 @@
-import { db } from "#config/database.js";
-import { sql } from "drizzle-orm";
-import { CONSTANTS } from "./constants.service.js";
+import { db } from '#config/database.js';
+import { sql } from 'drizzle-orm';
+import { CONSTANTS } from './constants.service.js';
 
-export const getDashboardSummaryService = async (payload) => {
-    const { role, org_id, user_id } = payload;
-    if(role === CONSTANTS.ROLES.MODERATOR){
-        return await handleModeratorInfo(org_id);
-    } else if(role === CONSTANTS.ROLES.REQUESTER){
-        return await handleRequesterInfo(org_id, user_id);
-    } else if(role === CONSTANTS.ROLES.APPROVER){
-        return await handleApproverInfo(org_id, user_id);
-    } else{
-        return await handleDefaultInfo();
-    }
+export const getDashboardSummaryService = async payload => {
+  const { role, org_id, user_id } = payload;
+  if (role === CONSTANTS.ROLES.MODERATOR) {
+    return await handleModeratorInfo(org_id);
+  } else if (role === CONSTANTS.ROLES.REQUESTER) {
+    return await handleRequesterInfo(org_id, user_id);
+  } else if (role === CONSTANTS.ROLES.APPROVER) {
+    return await handleApproverInfo(org_id, user_id);
+  } else {
+    return await handleDefaultInfo();
+  }
 };
 
-const handleModeratorInfo = async (org_id) => {
-    const query = `
+const handleModeratorInfo = async org_id => {
+  const query = `
     WITH pos_stats AS (
         SELECT
             COUNT(*) FILTER (
@@ -62,25 +62,25 @@ const handleModeratorInfo = async (org_id) => {
     FROM pos_stats, vendors_stats
     `;
 
-    const result = (await db.execute(sql.raw(query))).rows[0];
+  const result = (await db.execute(sql.raw(query))).rows[0];
 
-    return {
-        procurements: {
-            purchaseOrders:{
-                approved: Number(result.approved || 0),
-                awaiting: Number(result.awaiting || 0),
-                sent: Number(result.sent || 0),
-                completed: Number(result.completed || 0),
-                averageCreationTime: Number(result.average_creation_time || 0),
-            },
-            totalSpent: Number(result.total_spent || 0),
-            activeVendors: Number(result.active_vendors || 0),
-        }
-    }
+  return {
+    procurements: {
+      purchaseOrders: {
+        approved: Number(result.approved || 0),
+        awaiting: Number(result.awaiting || 0),
+        sent: Number(result.sent || 0),
+        completed: Number(result.completed || 0),
+        averageCreationTime: Number(result.average_creation_time || 0),
+      },
+      totalSpent: Number(result.total_spent || 0),
+      activeVendors: Number(result.active_vendors || 0),
+    },
+  };
 };
 
 const handleRequesterInfo = async (org_id, user_id) => {
-    const query = `
+  const query = `
         SELECT 
             COUNT(*) AS total,
 
@@ -105,21 +105,21 @@ const handleRequesterInfo = async (org_id, user_id) => {
         AND created_by = ${user_id}
     `;
 
-    const result = (await db.execute(sql.raw(query))).rows[0];
+  const result = (await db.execute(sql.raw(query))).rows[0];
 
-    return {
-        requests: {
-            total: Number(result.total || 0),
-            awaiting: Number(result.awaiting || 0),
-            approved: Number(result.approved || 0),
-            rejected: Number(result.rejected || 0),
-            completed: Number(result.completed || 0),
-        }
-    }
+  return {
+    requests: {
+      total: Number(result.total || 0),
+      awaiting: Number(result.awaiting || 0),
+      approved: Number(result.approved || 0),
+      rejected: Number(result.rejected || 0),
+      completed: Number(result.completed || 0),
+    },
+  };
 };
 
 const handleApproverInfo = async (org_id, user_id) => {
-    const query = `
+  const query = `
         WITH pos_stats AS (
             SELECT
                 COUNT(*) FILTER (WHERE po.status = '${CONSTANTS.PURCHASE_ORDER.STATUS.APPROVED}') AS approved,
@@ -145,21 +145,21 @@ const handleApproverInfo = async (org_id, user_id) => {
         CROSS JOIN vendors_stats
         `;
 
-    const result = (await db.execute(sql.raw(query))).rows[0];
-    
-    return {
-        approves: {
-            pending: Number(result.pending || 0),
-            approved: Number(result.approved || 0),
-            rejected: Number(result.rejected || 0),
-            averageApprovedTime: Number(result.average_approved_time || 0),
-            overdue: Number(result.overdue || 0),
-        }
-    }
+  const result = (await db.execute(sql.raw(query))).rows[0];
+
+  return {
+    approves: {
+      pending: Number(result.pending || 0),
+      approved: Number(result.approved || 0),
+      rejected: Number(result.rejected || 0),
+      averageApprovedTime: Number(result.average_approved_time || 0),
+      overdue: Number(result.overdue || 0),
+    },
+  };
 };
 
 const handleDefaultInfo = async () => {
-    const query = `
+  const query = `
         WITH org_stats AS (
             SELECT COUNT(*) AS organizations
             FROM organizations
@@ -186,16 +186,16 @@ const handleDefaultInfo = async () => {
         CROSS JOIN audit_stats
         CROSS JOIN po_avg
         `;
-    const result = (await db.execute(sql.raw(query))).rows[0];
+  const result = (await db.execute(sql.raw(query))).rows[0];
 
-    return {
-        stats:{
-            total:{
-                organizations: Number(result.organizations || 0),
-                users: Number(result.users || 0),
-                actions: Number(result.actions || 0),
-                purchaseOrders: Number(result.purchase_orders || 0),
-            },
-        }
-    }
+  return {
+    stats: {
+      total: {
+        organizations: Number(result.organizations || 0),
+        users: Number(result.users || 0),
+        actions: Number(result.actions || 0),
+        purchaseOrders: Number(result.purchase_orders || 0),
+      },
+    },
+  };
 };

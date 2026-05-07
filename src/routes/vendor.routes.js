@@ -13,28 +13,29 @@ import { CONSTANTS } from '#services/constants.service.js';
 const router = express.Router();
 
 router.use(authenticationMiddleware);
- 
-router.post('/', 
+
+router.post(
+  '/',
   roleBasedAccessControlMiddleware([
-      CONSTANTS.ROLES.MODERATOR,
-      CONSTANTS.ROLES.REQUESTER,
-      CONSTANTS.ROLES.APPROVER,
-    ]
-  ),
+    CONSTANTS.ROLES.MODERATOR,
+    CONSTANTS.ROLES.REQUESTER,
+    CONSTANTS.ROLES.APPROVER,
+  ]),
   listVendorsController
 );
 
-router.get('/:id',
+router.get(
+  '/:id',
   roleBasedAccessControlMiddleware([
-      CONSTANTS.ROLES.MODERATOR, 
-      CONSTANTS.ROLES.REQUESTER,
-      CONSTANTS.ROLES.APPROVER,
-    ]
-  ),
+    CONSTANTS.ROLES.MODERATOR,
+    CONSTANTS.ROLES.REQUESTER,
+    CONSTANTS.ROLES.APPROVER,
+  ]),
   getVendorByIdController
 );
 
-router.post('/',
+router.post(
+  '/',
   roleBasedAccessControlMiddleware([CONSTANTS.ROLES.MODERATOR]),
   schemaValidatorMiddleware(createVendorSchema),
   createVendorController

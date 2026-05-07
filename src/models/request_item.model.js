@@ -23,20 +23,14 @@ export const request_items = pgTable(
       length: 255,
     }).notNull(),
 
-    quantity: integer('quantity')
-      .notNull(),
+    quantity: integer('quantity').notNull(),
 
-    estimated_price: numeric(
-      'estimated_price',
-      {
-        precision: 12,
-        scale: 2,
-      }
-    ),
+    estimated_price: numeric('estimated_price', {
+      precision: 12,
+      scale: 2,
+    }),
   },
-  (table) => ({
-    requestIdx: index(
-      'request_items_request_idx'
-    ).on(table.request_id),
+  table => ({
+    requestIdx: index('request_items_request_idx').on(table.request_id),
   })
 );

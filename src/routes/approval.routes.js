@@ -17,8 +17,16 @@ router.use(roleBasedAccessControlMiddleware(['approver']));
 
 router.get('/pending', listPendingApprovalsController);
 
-router.post('/:id/approve', schemaValidatorMiddleware(updateRequestSchema),approveRequestController);
+router.post(
+  '/:id/approve',
+  schemaValidatorMiddleware(updateRequestSchema),
+  approveRequestController
+);
 
-router.post('/:id/reject', schemaValidatorMiddleware(updateRequestSchema),rejectRequestController);
+router.post(
+  '/:id/reject',
+  schemaValidatorMiddleware(updateRequestSchema),
+  rejectRequestController
+);
 
 export default router;
