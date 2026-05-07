@@ -11,6 +11,7 @@ import NotFoundException from '#exceptions/notFound.exception.js';
 import { organizations } from '#models/organization.model.js';
 import { createAuditLogService } from './auditLog.service.js';
 import { isUserLinkedToOrganizationService } from './user.service.js';
+import logger, { logEventObj } from '#config/logger.js';
 
 export const createVendorService = async payload => {
   const { email, name, org_id, user_id } = payload;
@@ -49,6 +50,18 @@ export const createVendorService = async payload => {
     action: 'create_vendor',
     metadata: {},
   });
+
+  logger.info(logEventObj(
+      'Create vendor',
+      user_id,
+      org_id,
+      "vendor",
+      newVendor.id,
+      {
+        "vendor":newVendor
+      }
+    )
+  );
 
   return newVendor;
 };

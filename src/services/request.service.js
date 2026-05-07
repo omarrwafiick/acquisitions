@@ -12,6 +12,8 @@ import { isUserLinkedToOrganizationService } from './user.service.js';
 import { request_items } from '#models/request_item.model.js';
 import { sql } from 'drizzle-orm';
 import { db } from '#config/database.js';
+import logger, { logEventObj } from '#config/logger.js';
+
 
 export const listRequestsService = async (query = {}, payload) => {
   const { org_id } = payload;
@@ -95,22 +97,33 @@ export const submitRequestService = async payload => {
     );
 
     await trx.execute(sql`
-            INSERT INTO audit_logs (
-                org_id,
-                actor_id,
-                entity_type,
-                entity_id,
-                action
-            )
-            VALUES (
-                ${org_id},
-                ${user_id},
-                ${'request'},
-                ${request.id},
-                'submit'
-            )
-        `);
+        INSERT INTO audit_logs (
+            org_id,
+            actor_id,
+            entity_type,
+            entity_id,
+            action
+        )
+        VALUES (
+            ${org_id},
+            ${user_id},
+            ${'request'},
+            ${request.id},
+            'submit'
+        )
+    `);
 
+    logger.info(logEventObj(
+        "Create request",
+        user_id,
+        org_id,
+        "Request",
+        request.id,
+        {
+          "request": request
+        }
+      )
+    );
     return request;
   });
 };

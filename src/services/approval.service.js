@@ -7,6 +7,7 @@ import { db } from '#config/database.js';
 import { requests } from '#models/request.model.js';
 import ForbiddenException from '#exceptions/forbidden.exception.js';
 import { CONSTANTS } from './constants.service.js';
+import logger, { logEventObj } from '#config/logger.js';
 
 export const listPendingApprovalsService = async (query = {}, payload) => {
   const { org_id } = payload;
@@ -47,23 +48,23 @@ export const changeRequestStateService = async payload => {
     });
 
     await trx.execute(sql`
-            INSERT INTO audit_logs (
-                org_id,
-                actor_id,
-                entity_type,
-                entity_id,
-                action,
-                metadata
-            )
-            VALUES (
-                ${org_id},
-                ${approver.id},
-                ${'request'},
-                ${request.id},
-                ${`change_state_${newStatus}`},
-                ${JSON.stringify({})}::jsonb
-            )
-        `);
+        INSERT INTO audit_logs (
+            org_id,
+            actor_id,
+            entity_type,
+            entity_id,
+            action,
+            metadata
+        )
+        VALUES (
+            ${org_id},
+            ${approverId},
+            ${'request'},
+            ${request.id},
+            ${`change_state_${newStatus}`},
+            ${JSON.stringify({})}::jsonb
+        )
+    `);
   });
 };
 
@@ -80,10 +81,17 @@ const handleStateChangeCases = async payload => {
     (currentStatus === CONSTANTS.REQUEST.STATUS.SUBMITTED &&
       newStatus === CONSTANTS.REQUEST.STATUS.REJECTED);
 
-  if (!isValidTransition)
-    throw new ForbiddenException(
-      `Invalid status change from ${currentStatus} to ${newStatus}.`
+  if (!isValidTransition){
+    const errorMessage = `Invalid status change from ${currentStatus} to ${newStatus}.`;
+    logger.error(logEventObj(errorMessage,
+        approverId,
+        request.org_id,
+        "Request",
+        request.id
+      )
     );
+    throw new ForbiddenException(errorMessage);
+  }
 
   await trx
     .update(requests)
@@ -94,6 +102,15 @@ const handleStateChangeCases = async payload => {
       update_reason: updateReason,
     })
     .where(eq(requests.id, request.id));
+
+  logger.info(logEventObj(
+      `Valid status change from ${currentStatus} to ${newStatus}.`,
+      approverId,
+      request.org_id,
+      "Request",
+      request.id
+    )
+  );
 };
 
 const checkRequestAndApprover = async (requestId, approverId) => {

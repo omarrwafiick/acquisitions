@@ -7,6 +7,7 @@ import {
   findOneWithJoin,
 } from '#repositories/main.repository.js';
 import { eq, or } from 'drizzle-orm';
+import logger, { logEventObj } from '#config/logger.js';
 
 export const createOrganizationService = async payload => {
   const { name, slug } = payload;
@@ -23,6 +24,14 @@ export const createOrganizationService = async payload => {
     slug,
   });
 
+  logger.info(logEventObj(
+      "Create organization",
+      "UNKNOWN",
+      newOrg.id,
+      "Organization",
+      newOrg.id
+    )
+  );
   return { id: newOrg.id };
 };
 

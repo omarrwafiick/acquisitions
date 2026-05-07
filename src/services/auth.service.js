@@ -160,7 +160,7 @@ export const checkUserExistance = async (req, res) => {
 };
 
 const failedLoginAttemptLog = (req, user, reason) => {
-  logger.info(logEventObj(
+  logger.error(logEventObj(
       "Login failed",
       user.id,
       user.org_id,

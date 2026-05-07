@@ -17,6 +17,7 @@ import { CONSTANTS } from './constants.service.js';
 import ForbiddenException from '#exceptions/forbidden.exception.js';
 import { vendors } from '#models/vendor.mode.js';
 import { sendEmailService, vendorEmailBodyBuilder } from './email.service.js';
+import logger, { logEventObj } from '#config/logger.js';
 
 export const listPurchaseOrdersService = async (query = {}, payload) => {
   const { org_id } = payload;
@@ -151,6 +152,18 @@ export const sendPurchaseOrderService = async payload => {
     },
   });
 
+  logger.info(logEventObj(
+      'Send purchase order',
+      user_id,
+      org_id,
+      "Purchase Order",
+      purchaseOrder.id,
+      {
+        "purchase_order": purchaseOrder
+      }
+    )
+  );
+
   return {
     id: purchase_order_id,
     status: CONSTANTS.PURCHASE_ORDER.STATUS.SENT,
@@ -170,6 +183,18 @@ const handleVendorSentRequest = async purchaseOrder => {
     throw new NotFoundException('Vendor not found');
 
   const vendorEmailBody = vendorEmailBodyBuilder({ vendor, purchaseOrder });
+
+  logger.debug(logEventObj(
+      'Send purchase order email to vendor',
+      requester.id,
+      requester.org_id,
+      "Purchase Order",
+      purchaseOrder.id,
+      {
+        "purchase_order": purchaseOrder
+      }
+    )
+  );
 
   await sendEmailService(
     requester.email,
@@ -224,6 +249,18 @@ export const completePurchaseOrderService = async payload => {
       status: CONSTANTS.PURCHASE_ORDER.STATUS.COMPLETED,
     },
   });
+
+  logger.log(logEventObj(
+      'Complete purchase order email to vendor',
+      user_id,
+      org_id,
+      "Purchase Order",
+      purchase_order_id,
+      {
+        "purchase_order": purchaseOrder
+      }
+    )
+  );
 
   return {
     id: purchase_order_id,
