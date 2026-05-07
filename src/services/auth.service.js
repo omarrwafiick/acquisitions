@@ -121,11 +121,17 @@ export const checkUserExistance = async (req, res) => {
 
   const user = await findOne(users, eq(users.email, email));
 
-  if (!user) throw new NotFoundException('User was not found');
+  if (!user){
+    failedLoginAttemptLog(req, user, "Invalid Email");
+    throw new NotFoundException('User was not found');
+  }
 
   const validPassword = await userPassword.validate(password, user.password);
 
-  if (!validPassword) throw new InvalidPasswordException();
+  if (!validPassword){
+    failedLoginAttemptLog(req, user, "Invalid Password");
+    throw new InvalidPasswordException();
+  }
 
   const userHasNoToken = !cookies.get(req, 'token');
 
@@ -135,7 +141,7 @@ export const checkUserExistance = async (req, res) => {
         user.id,
         user.org_id,
         "JWT creation",
-        newUser.id,
+        user.id,
         {
           method: req.method,
           path: req.path,
@@ -151,6 +157,23 @@ export const checkUserExistance = async (req, res) => {
   }
 
   return mapUserInfo(user);
+};
+
+const failedLoginAttemptLog = (req, user, reason) => {
+  logger.info(logEventObj(
+      "Login failed",
+      user.id,
+      user.org_id,
+      reason,
+      user.id,
+      {
+        method: req.method,
+        path: req.path,
+        ip: req.ip,
+        userAgent: req.headers['user-agent']
+      }
+    )
+  );
 };
 
 const mapUserInfo = user => {
