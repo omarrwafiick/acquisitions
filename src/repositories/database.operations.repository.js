@@ -3,7 +3,7 @@ import logger from '#config/logger.js';
 import { sql } from 'drizzle-orm';
 
 export const isDatabaseAlive = async () => {
-  let currentState = true;
+  const currentState = true;
   try {
     await db.execute(sql`SELECT 1`);
     return currentState;
