@@ -4,10 +4,8 @@ import { and, eq, not } from 'drizzle-orm';
 import { organizations } from '#models/organization.model.js';
 import NotFoundException from '#exceptions/notFound.exception.js';
 
-export const listUsersService = async (
-  query = {},
-  { user_id, org_id }
-) => {
+export const listUsersService = async (query = {}, payload) => {
+  const { user_id, org_id } = payload;
   return await findMany(
     users,
     and(

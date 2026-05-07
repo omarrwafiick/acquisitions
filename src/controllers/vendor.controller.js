@@ -3,7 +3,7 @@ import responseHandler from '#utils/response.js';
 
 export const createVendorController = async (req, res, next) => {
   try {
-    const data = await createVendorService({ ...req.data, user_id: req.user.id });
+    const data = await createVendorService({ ...req.body, user_id: req.user.id });
 
     responseHandler(req, res, { message: 'success vendor creation!', data }, 201);
   } catch (error) {

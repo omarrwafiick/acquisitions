@@ -15,6 +15,27 @@
       "when": 1777983288466,
       "tag": "0001_slim_dagger",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1778102705171,
+      "tag": "0002_many_spencer_smythe",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1778103318288,
+      "tag": "0003_icy_iron_fist",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1778108755220,
+      "tag": "0004_polite_talon",
+      "breakpoints": true
     }
   ]
 }

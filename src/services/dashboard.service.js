@@ -2,8 +2,8 @@ import { db } from "#config/database.js";
 import { sql } from "drizzle-orm";
 import { CONSTANTS } from "./constants.service.js";
 
-export const getDashboardSummaryService = async (role, org_id, user_id) => {
-    console.log("role", role)
+export const getDashboardSummaryService = async (payload) => {
+    const { role, org_id, user_id } = payload;
     if(role === CONSTANTS.ROLES.MODERATOR){
         return await handleModeratorInfo(org_id);
     } else if(role === CONSTANTS.ROLES.REQUESTER){

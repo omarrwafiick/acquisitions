@@ -12,7 +12,7 @@ const schemaValidatorMiddleware = (schema) => (req, res, next) => {
         formatValidationError(result.error)
       );
     }
-    req.data = result.data;
+    req.body = result.data;
     next();
   } catch (error) {
     responseHandler(req, res, error, error.status || 400);

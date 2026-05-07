@@ -1,0 +1,1 @@
+ALTER TABLE "requests" ALTER COLUMN "updated_at" SET DEFAULT now();

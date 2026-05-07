@@ -13,7 +13,7 @@ import { cookies } from '#utils/cookies.js';
 import { CONSTANTS } from './constants.service.js';
 
 export const createUser = async (req, res, addMember) => {
-  const { name, email, password, role, org_id } = req.data;
+  const { name, email, password, role, org_id } = req.body;
   
   const existingUser = await findOne(users, eq(users.email, email));
 
@@ -72,7 +72,7 @@ const isOrganizationHasModerator = async ({ org_id }) => {
 }
 
 export const checkUserExistance = async (req, res) => {
-  const { email, password } = req.data;
+  const { email, password } = req.body;
 
   const user = await findOne(users, eq(users.email, email));
 

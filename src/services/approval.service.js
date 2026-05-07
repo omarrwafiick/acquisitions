@@ -1,6 +1,6 @@
 import { users } from "#models/user.model.js";
 import { findMany, findOne } from "#repositories/main.repository.js";
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { createAuditLogService } from "./auditLog.service.js";
 import NotFoundException from '#exceptions/notFound.exception.js';
 import { db } from "#config/database.js";
@@ -8,7 +8,8 @@ import { requests } from "#models/request.model.js";
 import ForbiddenException from '#exceptions/forbidden.exception.js';
 import { CONSTANTS } from "./constants.service.js";
 
-export const listPendingApprovalsService = async (query = {}, { org_id }) => {
+export const listPendingApprovalsService = async (query = {}, payload) => {
+    const { org_id } = payload;
     return await findMany(
         requests,
         and(
@@ -20,12 +21,13 @@ export const listPendingApprovalsService = async (query = {}, { org_id }) => {
     );
 };
 
-export const changeRequestStateService = async ({ requestId, approverId, org_id, newStatus }) => {
+export const changeRequestStateService = async (payload) => {
+    const { requestId, approverId, org_id, newStatus, updateReason } = payload;
     await checkRequestAndApprover(requestId, approverId);
 
-    await db.transaction(async (tx) => {
+    await db.transaction(async (trx) => {
         const request = (
-            await tx.execute(sql`
+            await trx.execute(sql`
                 SELECT *
                 FROM requests
                 WHERE id = ${requestId}
@@ -37,9 +39,9 @@ export const changeRequestStateService = async ({ requestId, approverId, org_id,
         if (!request)
             throw new NotFoundException('Request was not found.');
 
-        await handleStateChangeCases({ trx, request, newStatus });
+        await handleStateChangeCases({ trx, request, newStatus, approverId, updateReason });
 
-        await tx.execute(sql`
+        await trx.execute(sql`
             INSERT INTO audit_logs (
                 org_id,
                 actor_id,
@@ -60,22 +62,37 @@ export const changeRequestStateService = async ({ requestId, approverId, org_id,
     });
 };
 
-const handleStateChangeCases = async ({ trx, request, newStatus }) => {
+const handleStateChangeCases = async (payload) => {
+    const { trx, request, newStatus, approverId, updateReason } = payload;
+    
     const currentStatus = request.status;
 
-    if (
-        currentStatus === CONSTANTS.REQUEST.STATUS.SUBMITTED && newStatus === CONSTANTS.REQUEST.STATUS.APPROVED ||
-        currentStatus === CONSTANTS.REQUEST.STATUS.APPROVED && newStatus === CONSTANTS.REQUEST.STATUS.COMPLETED ||
-        currentStatus === CONSTANTS.REQUEST.STATUS.SUBMITTED && newStatus === CONSTANTS.REQUEST.STATUS.REJECTED
-    ){
-        await tx.execute(sql`
-            UPDATE requests
-            SET status = '${newStatus}'
-            WHERE id = ${request.id}
-        `);
-    }else {
-        throw new ForbiddenException(`Invalid Change status from ${currentStatus} to ${newStatus}.`)
-    }; 
+    const isValidTransition =
+    (currentStatus === CONSTANTS.REQUEST.STATUS.SUBMITTED &&
+     newStatus === CONSTANTS.REQUEST.STATUS.APPROVED) ||
+
+    (currentStatus === CONSTANTS.REQUEST.STATUS.APPROVED &&
+     newStatus === CONSTANTS.REQUEST.STATUS.COMPLETED) ||
+
+    (currentStatus === CONSTANTS.REQUEST.STATUS.SUBMITTED &&
+     newStatus === CONSTANTS.REQUEST.STATUS.REJECTED);
+
+    if (!isValidTransition)
+        throw new ForbiddenException(`Invalid status change from ${currentStatus} to ${newStatus}.`);
+
+    await trx.update(requests)
+        .set({
+            status: newStatus,
+            approver_id: approverId,
+            updated_at: sql`NOW()`,
+            update_reason: updateReason,
+        })
+        .where(
+            eq(
+                requests.id,
+                request.id
+            )
+        );
 }
 
 const checkRequestAndApprover = async (requestId, approverId) => {

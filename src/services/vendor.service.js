@@ -1,4 +1,4 @@
-import { create, findMany, findManyWithJoin, findOne, findOneWithJoin } from '#repositories/main.repository.js';
+import { create, findMany, findOne, findOneWithJoin } from '#repositories/main.repository.js';
 import { vendors } from '#models/vendor.mode.js';
 import { and, eq, not } from 'drizzle-orm';
 import DuplicateException from '#exceptions/duplicate.exception.js';
@@ -47,7 +47,8 @@ export const createVendorService = async (payload) => {
     return newVendor;
 };
 
-export const listVendorsService = async (query = {}, { org_id }) => {
+export const listVendorsService = async (query = {}, payload) => {
+    const { org_id } = payload;
     return await findMany(
         vendors,
         eq(vendors.org_id, org_id),
@@ -56,7 +57,8 @@ export const listVendorsService = async (query = {}, { org_id }) => {
     );
 };
 
-export const getVendorByIdService = async ({ id, org_id }) => {
+export const getVendorByIdService = async (payload) => {
+    const { id, org_id } = payload;
     return await findOne(
         vendors, 
         and(

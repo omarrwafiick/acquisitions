@@ -26,9 +26,10 @@ export const createOrganizationService = async (payload) => {
   return { id: newOrg.id }
 };
 
-export const getMyOrganizationService = async ({ org_id }) => {
-    return await findOne(
-        organizations,
-        eq(organizations.id, org_id)
-    );
+export const getMyOrganizationService = async (payload) => {
+  const { org_id } = payload;
+  return await findOne(
+    organizations,
+    eq(organizations.id, org_id)
+  );
 };

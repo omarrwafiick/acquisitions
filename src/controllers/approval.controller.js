@@ -19,10 +19,11 @@ export const listPendingApprovalsController = async (req, res, next) => {
 
 export const approveRequestController  = async (req, res, next) => {
   try {
-    const data = await changeRequestStateService( { 
+    const data = await changeRequestStateService({ 
       requestId: req.params.id,
       approverId: req.user.id,
       org_id: req.user.org_id,
+      updateReason: req.body.updateReason || 'NONE',
       newStatus: CONSTANTS.REQUEST.STATUS.APPROVED
     });
 
@@ -34,10 +35,11 @@ export const approveRequestController  = async (req, res, next) => {
 
 export const rejectRequestController  = async (req, res, next) => {
   try {
-    const data = await changeRequestStateService( { 
+    const data = await changeRequestStateService({ 
       requestId: req.params.id,
       approverId: req.user.id,
       org_id: req.user.org_id,
+      updateReason: req.body.updateReason || 'NONE',
       newStatus: CONSTANTS.REQUEST.STATUS.REJECTED
     });
 

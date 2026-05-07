@@ -25,6 +25,16 @@ export const requests = pgTable(
       .notNull()
       .references(() => users.id),
 
+    approver_id: integer('approver_id')
+      .references(() => users.id),
+
+    updated_at : timestamp('updated_at')
+      .defaultNow(),
+    
+    update_reason: varchar('update_reason', {
+      length: 255,
+    }),  
+
     title: varchar('title', {
       length: 255,
     }).notNull(),

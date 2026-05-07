@@ -4,7 +4,7 @@ import responseHandler from "#utils/response.js";
 
 export const createOrganization = async (req, res, next) => {
   try {
-      const data = await createOrganizationService(req.data);
+      const data = await createOrganizationService(req.body);
   
       responseHandler(req, res, { message: 'success organization creation', data }, 201);
     } catch (error) {
