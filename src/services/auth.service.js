@@ -15,13 +15,18 @@ import { and, eq, or } from 'drizzle-orm';
 import { jwtToken } from '#utils/security.js';
 import { cookies } from '#utils/cookies.js';
 import { CONSTANTS } from './constants.service.js';
+import { vendors } from '#models/vendor.mode.js';
 
 export const createUser = async (req, res, addMember) => {
   const { name, email, password, role, org_id } = req.body;
 
-  const existingUser = await findOne(users, eq(users.email, email));
+  const [existingUser, existingVendor] = await Promise.all([
+    findOne(users, eq(users.email, email)),
+    findOne(vendors, eq(vendors.email, email)),
+  ]);
 
-  if (existingUser) throw new DuplicateException('User already exist');
+  if (existingUser || existingVendor) 
+    throw new DuplicateException('User with same credits is already exists.');
 
   const organization = await findOne(
     organizations,
@@ -81,41 +86,6 @@ export const createUser = async (req, res, addMember) => {
   return mapUserInfo(newUser);
 };
 
-const isOrganizationHasModerator = async ({ org_id,  req }) => {
-  const organizationHasModerator = await findOneWithJoin(
-    organizations,
-    users,
-
-    and(
-      eq(organizations.id, org_id),
-      eq(users.role, CONSTANTS.ROLES.MODERATOR)
-    ),
-
-    eq(users.org_id, organizations.id)
-  );
-
-  if (organizationHasModerator){
-    logger.info(logEventObj(
-        "Attempt to create new moderator to organization already has onw",
-        "UNKNOWN",
-        org_id,
-        "Business rule violation",
-        org_id,
-        {
-          method: req.method,
-          path: req.path,
-          ip: req.ip,
-          userAgent: req.headers['user-agent']
-        }
-      )
-    );
-
-    throw new ForbiddenException('Organization has already a moderator.');
-  }
-
-  return;
-};
-
 export const checkUserExistance = async (req, res) => {
   const { email, password } = req.body;
 
@@ -159,6 +129,46 @@ export const checkUserExistance = async (req, res) => {
   return mapUserInfo(user);
 };
 
+export const logoutUser = res => {
+  cookies.clear(res, 'token');
+  return;
+};
+
+const isOrganizationHasModerator = async ({ org_id,  req }) => {
+  const organizationHasModerator = await findOneWithJoin(
+    organizations,
+    users,
+
+    and(
+      eq(organizations.id, org_id),
+      eq(users.role, CONSTANTS.ROLES.MODERATOR)
+    ),
+
+    eq(users.org_id, organizations.id)
+  );
+
+  if (organizationHasModerator){
+    logger.info(logEventObj(
+        "Attempt to create new moderator to organization already has onw",
+        "UNKNOWN",
+        org_id,
+        "Business rule violation",
+        org_id,
+        {
+          method: req.method,
+          path: req.path,
+          ip: req.ip,
+          userAgent: req.headers['user-agent']
+        }
+      )
+    );
+
+    throw new ForbiddenException('Organization has already a moderator.');
+  }
+
+  return;
+};
+
 const failedLoginAttemptLog = (req, user, reason) => {
   logger.error(logEventObj(
       "Login failed",
@@ -187,9 +197,4 @@ const mapUserInfo = user => {
       created_at: user.created_at,
     },
   };
-};
-
-export const logoutUser = res => {
-  cookies.clear(res, 'token');
-  return;
 };

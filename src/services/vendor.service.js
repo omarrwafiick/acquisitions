@@ -12,6 +12,7 @@ import { organizations } from '#models/organization.model.js';
 import { createAuditLogService } from './auditLog.service.js';
 import { isUserLinkedToOrganizationService } from './user.service.js';
 import logger, { logEventObj } from '#config/logger.js';
+import { users } from '#models/user.model.js';
 
 export const createVendorService = async payload => {
   const { email, name, org_id, user_id } = payload;
@@ -25,16 +26,20 @@ export const createVendorService = async payload => {
 
   if (!organization) throw new NotFoundException('Organization was not found.');
 
-  const resourceExists = await findOne(
-    vendors,
-    and(
-      eq(vendors.email, email),
-      eq(vendors.org_id, org_id),
-      eq(vendors.name, name)
-    )
-  );
+  const [vendorExists, userExists] = await Promise.all([
+    findOne(
+      vendors,
+      and(
+        eq(vendors.email, email),
+        eq(vendors.org_id, org_id),
+        eq(vendors.name, name)
+      )
+    ),
+    findOne(users, eq(users.email, email))
+  ]);
 
-  if (resourceExists) throw new DuplicateException('Vendor already exist');
+  if (vendorExists || userExists) 
+    throw new DuplicateException('User with same credits is already exists.');
 
   const newVendor = await create(vendors, {
     org_id,
