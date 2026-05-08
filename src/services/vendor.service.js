@@ -35,10 +35,10 @@ export const createVendorService = async payload => {
         eq(vendors.name, name)
       )
     ),
-    findOne(users, eq(users.email, email))
+    findOne(users, eq(users.email, email)),
   ]);
 
-  if (vendorExists || userExists) 
+  if (vendorExists || userExists)
     throw new DuplicateException('User with same credits is already exists.');
 
   const newVendor = await create(vendors, {
@@ -56,17 +56,11 @@ export const createVendorService = async payload => {
     metadata: {},
   });
 
-  logger.info(logEventObj(
-      'Create vendor',
-      user_id,
-      org_id,
-      "vendor",
-      newVendor.id,
-      {
-        name,
-        email
-      }
-    )
+  logger.info(
+    logEventObj('Create vendor', user_id, org_id, 'vendor', newVendor.id, {
+      name,
+      email,
+    })
   );
 
   return newVendor;

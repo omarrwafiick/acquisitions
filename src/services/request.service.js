@@ -14,7 +14,6 @@ import { sql } from 'drizzle-orm';
 import { db } from '#config/database.js';
 import logger, { logEventObj } from '#config/logger.js';
 
-
 export const listRequestsService = async (query = {}, payload) => {
   const { org_id } = payload;
 
@@ -113,19 +112,13 @@ export const submitRequestService = async payload => {
         )
     `);
 
-    logger.info(logEventObj(
-        "Create request",
-        user_id,
-        org_id,
-        "Request",
-        request.id,
-        {
-          title,
-          itemsCount: Array(items).length
-        }
-      )
+    logger.info(
+      logEventObj('Create request', user_id, org_id, 'Request', request.id, {
+        title,
+        itemsCount: Array(items).length,
+      })
     );
-    
+
     return request;
   });
 };

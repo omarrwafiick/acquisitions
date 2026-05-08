@@ -25,7 +25,7 @@ export const createUser = async (req, res, addMember) => {
     findOne(vendors, eq(vendors.email, email)),
   ]);
 
-  if (existingUser || existingVendor) 
+  if (existingUser || existingVendor)
     throw new DuplicateException('User with same credits is already exists.');
 
   const organization = await findOne(
@@ -48,11 +48,12 @@ export const createUser = async (req, res, addMember) => {
     org_id,
   });
 
-  logger.info(logEventObj(
-      "Account creation",
+  logger.info(
+    logEventObj(
+      'Account creation',
       newUser.id,
       org_id,
-      "register",
+      'register',
       newUser.id,
       {
         email,
@@ -60,23 +61,24 @@ export const createUser = async (req, res, addMember) => {
         method: req.method,
         path: req.path,
         ip: req.ip,
-        userAgent: req.headers['user-agent']
+        userAgent: req.headers['user-agent'],
       }
     )
   );
 
   if (!addMember) {
-    logger.info(logEventObj(
-        "Grant JWT while register new account",
+    logger.info(
+      logEventObj(
+        'Grant JWT while register new account',
         newUser.id,
         org_id,
-        "JWT creation",
+        'JWT creation',
         newUser.id,
         {
           method: req.method,
           path: req.path,
           ip: req.ip,
-          userAgent: req.headers['user-agent']
+          userAgent: req.headers['user-agent'],
         }
       )
     );
@@ -93,32 +95,33 @@ export const checkUserExistance = async (req, res) => {
 
   const user = await findOne(users, eq(users.email, email));
 
-  if (!user){
-    failedLoginAttemptLog(req, user, "Invalid Email");
+  if (!user) {
+    failedLoginAttemptLog(req, user, 'Invalid Email');
     throw new NotFoundException('User was not found');
   }
 
   const validPassword = await userPassword.validate(password, user.password);
 
-  if (!validPassword){
-    failedLoginAttemptLog(req, user, "Invalid Password");
+  if (!validPassword) {
+    failedLoginAttemptLog(req, user, 'Invalid Password');
     throw new InvalidPasswordException();
   }
 
   const userHasNoToken = !cookies.get(req, 'token');
 
   if (userHasNoToken) {
-    logger.info(logEventObj(
-        "Grant JWT while register new account",
+    logger.info(
+      logEventObj(
+        'Grant JWT while register new account',
         user.id,
         user.org_id,
-        "JWT creation",
+        'JWT creation',
         user.id,
         {
           method: req.method,
           path: req.path,
           ip: req.ip,
-          userAgent: req.headers['user-agent']
+          userAgent: req.headers['user-agent'],
         }
       )
     );
@@ -134,18 +137,19 @@ export const checkUserExistance = async (req, res) => {
 export const logoutUser = (req, res) => {
   cookies.clear(res, 'token');
 
-  logger.info(logEventObj(
-      "User logout",
+  logger.info(
+    logEventObj(
+      'User logout',
       req.user.id,
       req.user.org_id,
-      "Users table",
+      'Users table',
       req.user.id,
       {
         email: req.user.email,
         method: req.method,
         path: req.path,
         ip: req.ip,
-        userAgent: req.headers['user-agent']
+        userAgent: req.headers['user-agent'],
       }
     )
   );
@@ -153,7 +157,7 @@ export const logoutUser = (req, res) => {
   return;
 };
 
-const isOrganizationHasModerator = async ({ org_id,  req }) => {
+const isOrganizationHasModerator = async ({ org_id, req }) => {
   const organizationHasModerator = await findOneWithJoin(
     organizations,
     users,
@@ -166,18 +170,19 @@ const isOrganizationHasModerator = async ({ org_id,  req }) => {
     eq(users.org_id, organizations.id)
   );
 
-  if (organizationHasModerator){
-    logger.info(logEventObj(
-        "Attempt to create new moderator to organization already has onw",
-        "UNKNOWN",
+  if (organizationHasModerator) {
+    logger.info(
+      logEventObj(
+        'Attempt to create new moderator to organization already has onw',
+        'UNKNOWN',
         org_id,
-        "Business rule violation",
+        'Business rule violation',
         org_id,
         {
           method: req.method,
           path: req.path,
           ip: req.ip,
-          userAgent: req.headers['user-agent']
+          userAgent: req.headers['user-agent'],
         }
       )
     );
@@ -189,19 +194,13 @@ const isOrganizationHasModerator = async ({ org_id,  req }) => {
 };
 
 const failedLoginAttemptLog = (req, user, reason) => {
-  logger.info(logEventObj(
-      "Login failed",
-      user.id,
-      user.org_id,
-      reason,
-      user.id,
-      {
-        method: req.method,
-        path: req.path,
-        ip: req.ip,
-        userAgent: req.headers['user-agent']
-      }
-    )
+  logger.info(
+    logEventObj('Login failed', user.id, user.org_id, reason, user.id, {
+      method: req.method,
+      path: req.path,
+      ip: req.ip,
+      userAgent: req.headers['user-agent'],
+    })
   );
 };
 

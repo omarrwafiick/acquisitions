@@ -81,12 +81,14 @@ const handleStateChangeCases = async payload => {
     (currentStatus === CONSTANTS.REQUEST.STATUS.SUBMITTED &&
       newStatus === CONSTANTS.REQUEST.STATUS.REJECTED);
 
-  if (!isValidTransition){
+  if (!isValidTransition) {
     const errorMessage = `Invalid status change from ${currentStatus} to ${newStatus}.`;
-    logger.error(logEventObj(errorMessage,
+    logger.error(
+      logEventObj(
+        errorMessage,
         approverId,
         request.org_id,
-        "Request",
+        'Request',
         request.id
       )
     );
@@ -103,15 +105,16 @@ const handleStateChangeCases = async payload => {
     })
     .where(eq(requests.id, request.id));
 
-  logger.info(logEventObj(
+  logger.info(
+    logEventObj(
       `Valid status change from ${currentStatus} to ${newStatus}.`,
       approverId,
       request.org_id,
-      "Request",
+      'Request',
       request.id,
       {
         approvalAfterTimeStamp: request.updated_at - request.created_at,
-        updateReason
+        updateReason,
       }
     )
   );

@@ -24,11 +24,12 @@ export const createOrganizationService = async payload => {
     slug,
   });
 
-  logger.info(logEventObj(
-      "Create organization",
-      "UNKNOWN",
+  logger.info(
+    logEventObj(
+      'Create organization',
+      'UNKNOWN',
       newOrg.id,
-      "Organization",
+      'Organization',
       newOrg.id
     )
   );

@@ -122,8 +122,7 @@ export const sendPurchaseOrderService = async payload => {
     }
   );
 
-  if (!purchaseOrder) 
-    throw new NotFoundException('Purchase order not found');
+  if (!purchaseOrder) throw new NotFoundException('Purchase order not found');
 
   if (purchaseOrder.org_id !== org_id)
     throw new ForbiddenException('Unauthorized access to purchase order');
@@ -153,16 +152,17 @@ export const sendPurchaseOrderService = async payload => {
     },
   });
 
-  logger.info(logEventObj(
+  logger.info(
+    logEventObj(
       'Send purchase order',
       user_id,
       org_id,
-      "Purchase Order",
+      'Purchase Order',
       purchaseOrder.id,
       {
         vendorId: purchaseOrder.vendor_id,
         requestId: purchaseOrder.request_id,
-        amount: purchaseOrder.total_amount
+        amount: purchaseOrder.total_amount,
       }
     )
   );
@@ -179,24 +179,23 @@ const handleVendorSentRequest = async purchaseOrder => {
     findOne(vendors, eq(vendors.id, purchaseOrder.vendor_id)),
   ]);
 
-  if (!requester) 
-    throw new NotFoundException('Requester not found');
+  if (!requester) throw new NotFoundException('Requester not found');
 
-  if (!vendor) 
-    throw new NotFoundException('Vendor not found');
+  if (!vendor) throw new NotFoundException('Vendor not found');
 
   const vendorEmailBody = vendorEmailBodyBuilder({ vendor, purchaseOrder });
 
-  logger.debug(logEventObj(
+  logger.debug(
+    logEventObj(
       'Send purchase order email to vendor',
       requester.id,
       requester.org_id,
-      "Purchase Order",
+      'Purchase Order',
       purchaseOrder.id,
       {
         purchase_order_id: purchaseOrder.id,
         sentTo: vendor.email,
-        sendBy: requester.email
+        sendBy: requester.email,
       }
     )
   );
@@ -226,8 +225,7 @@ export const completePurchaseOrderService = async payload => {
     }
   );
 
-  if (!purchaseOrder) 
-    throw new NotFoundException('Purchase order not found');
+  if (!purchaseOrder) throw new NotFoundException('Purchase order not found');
 
   if (purchaseOrder.org_id !== org_id)
     throw new ForbiddenException('Unauthorized access to purchase order');
@@ -255,14 +253,16 @@ export const completePurchaseOrderService = async payload => {
     },
   });
 
-  logger.log(logEventObj(
+  logger.log(
+    logEventObj(
       'Complete purchase order email to vendor',
       user_id,
       org_id,
-      "Purchase Order",
+      'Purchase Order',
       purchase_order_id,
-      {    
-        completedAfterTimeStamp: purchaseOrder.updated_at - purchaseOrder.created_at
+      {
+        completedAfterTimeStamp:
+          purchaseOrder.updated_at - purchaseOrder.created_at,
       }
     )
   );

@@ -13,17 +13,17 @@ const authenticationMiddleware = (req, res, next) => {
     next();
   } catch (error) {
     responseHandler(
-      req, 
-      res, 
-      { 
+      req,
+      res,
+      {
         error,
         info: {
           method: req.method,
           path: req.path,
           ip: req.ip,
-          userAgent: req.headers['user-agent']
-        }
-      }, 
+          userAgent: req.headers['user-agent'],
+        },
+      },
       error.status || 400
     );
   }
