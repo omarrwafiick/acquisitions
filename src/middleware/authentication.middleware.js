@@ -12,7 +12,20 @@ const authenticationMiddleware = (req, res, next) => {
     req.user = jwtToken.verify(token);
     next();
   } catch (error) {
-    responseHandler(req, res, error, error.status || 400);
+    responseHandler(
+      req, 
+      res, 
+      { 
+        error,
+        info: {
+          method: req.method,
+          path: req.path,
+          ip: req.ip,
+          userAgent: req.headers['user-agent']
+        }
+      }, 
+      error.status || 400
+    );
   }
 };
 

@@ -38,6 +38,8 @@ export const purchase_orders = pgTable(
     }).notNull(),
 
     created_at: timestamp('created_at').defaultNow().notNull(),
+
+    updated_at: timestamp('updated_at').defaultNow().notNull(),
   },
   table => ({
     requestIdx: index('po_request_idx').on(table.request_id),

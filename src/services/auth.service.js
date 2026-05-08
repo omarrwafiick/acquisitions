@@ -49,12 +49,14 @@ export const createUser = async (req, res, addMember) => {
   });
 
   logger.info(logEventObj(
-      "Account Creation",
+      "Account creation",
       newUser.id,
       org_id,
       "register",
       newUser.id,
       {
+        email,
+        role,
         method: req.method,
         path: req.path,
         ip: req.ip,
@@ -129,8 +131,25 @@ export const checkUserExistance = async (req, res) => {
   return mapUserInfo(user);
 };
 
-export const logoutUser = res => {
+export const logoutUser = (req, res) => {
   cookies.clear(res, 'token');
+
+  logger.info(logEventObj(
+      "User logout",
+      req.user.id,
+      req.user.org_id,
+      "Users table",
+      req.user.id,
+      {
+        email: req.user.email,
+        method: req.method,
+        path: req.path,
+        ip: req.ip,
+        userAgent: req.headers['user-agent']
+      }
+    )
+  );
+
   return;
 };
 
@@ -170,7 +189,7 @@ const isOrganizationHasModerator = async ({ org_id,  req }) => {
 };
 
 const failedLoginAttemptLog = (req, user, reason) => {
-  logger.error(logEventObj(
+  logger.info(logEventObj(
       "Login failed",
       user.id,
       user.org_id,

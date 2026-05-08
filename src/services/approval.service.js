@@ -108,7 +108,11 @@ const handleStateChangeCases = async payload => {
       approverId,
       request.org_id,
       "Request",
-      request.id
+      request.id,
+      {
+        approvalAfterTimeStamp: request.updated_at - request.created_at,
+        updateReason
+      }
     )
   );
 };

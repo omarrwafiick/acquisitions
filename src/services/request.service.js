@@ -120,10 +120,12 @@ export const submitRequestService = async payload => {
         "Request",
         request.id,
         {
-          "request": request
+          title,
+          itemsCount: Array(items).length
         }
       )
     );
+    
     return request;
   });
 };

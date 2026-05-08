@@ -63,7 +63,8 @@ export const createVendorService = async payload => {
       "vendor",
       newVendor.id,
       {
-        "vendor":newVendor
+        name,
+        email
       }
     )
   );

@@ -37,7 +37,7 @@ export const login = async (req, res, next) => {
 
 export const logout = (req, res, next) => {
   try {
-    logoutUser(res);
+    logoutUser(req, res);
 
     responseHandler(req, res, { message: 'success logout' }, 200);
   } catch (error) {

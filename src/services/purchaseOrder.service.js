@@ -122,7 +122,8 @@ export const sendPurchaseOrderService = async payload => {
     }
   );
 
-  if (!purchaseOrder) throw new NotFoundException('Purchase order not found');
+  if (!purchaseOrder) 
+    throw new NotFoundException('Purchase order not found');
 
   if (purchaseOrder.org_id !== org_id)
     throw new ForbiddenException('Unauthorized access to purchase order');
@@ -159,7 +160,9 @@ export const sendPurchaseOrderService = async payload => {
       "Purchase Order",
       purchaseOrder.id,
       {
-        "purchase_order": purchaseOrder
+        vendorId: purchaseOrder.vendor_id,
+        requestId: purchaseOrder.request_id,
+        amount: purchaseOrder.total_amount
       }
     )
   );
@@ -191,7 +194,9 @@ const handleVendorSentRequest = async purchaseOrder => {
       "Purchase Order",
       purchaseOrder.id,
       {
-        "purchase_order": purchaseOrder
+        purchase_order_id: purchaseOrder.id,
+        sentTo: vendor.email,
+        sendBy: requester.email
       }
     )
   );
@@ -256,8 +261,8 @@ export const completePurchaseOrderService = async payload => {
       org_id,
       "Purchase Order",
       purchase_order_id,
-      {
-        "purchase_order": purchaseOrder
+      {    
+        completedAfterTimeStamp: purchaseOrder.updated_at - purchaseOrder.created_at
       }
     )
   );
