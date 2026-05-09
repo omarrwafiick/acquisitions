@@ -64,7 +64,7 @@ export const getPurchaseOrderByIdController = async (req, res, next) => {
 export const sendPurchaseOrderController = async (req, res, next) => {
   try {
     const data = await sendPurchaseOrderService({
-      id: req.params.id,
+      purchase_order_id: req.params.id,
       org_id: req.user.org_id,
       user_id: req.user.id,
     });
@@ -83,7 +83,7 @@ export const sendPurchaseOrderController = async (req, res, next) => {
 export const completePurchaseOrderController = async (req, res, next) => {
   try {
     const data = await completePurchaseOrderService({
-      id: req.params.id,
+      purchase_order_id: req.params.id,
       org_id: req.user.org_id,
       user_id: req.user.id,
     });

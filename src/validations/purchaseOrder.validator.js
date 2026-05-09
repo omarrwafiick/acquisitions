@@ -1,13 +1,11 @@
 import { z } from 'zod';
 
 export const createPurchaseOrderSchema = z.object({
-  requestId: z.coerce.number().int().positive(),
+  request_id: z.coerce.number().int().positive(),
 
-  vendorId: z.coerce.number().int().positive(),
+  vendor_id: z.coerce.number().int().positive(),
 
-  totalAmount: z.coerce.number().positive(),
-
-  status: z.string().max(50).trim().toLowerCase(),
+  total_amount: z.coerce.number().positive(),
 });
 
 export const updatePurchaseOrderSchema = z.object({

@@ -214,13 +214,11 @@ const failedLoginAttemptLog = (req, user, reason) => {
 
 const mapUserInfo = user => {
   return {
-    data: {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      org_id: user.org_id,
-      created_at: user.created_at,
-    },
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    role: user.role,
+    org_id: user.org_id,
+    created_at: user.created_at,
   };
 };

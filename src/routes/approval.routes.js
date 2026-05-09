@@ -15,7 +15,7 @@ router.use(authenticationMiddleware);
 
 router.use(roleBasedAccessControlMiddleware(['approver']));
 
-router.get('/pending', listPendingApprovalsController);
+router.post('/pending', listPendingApprovalsController);
 
 router.post(
   '/:id/approve',

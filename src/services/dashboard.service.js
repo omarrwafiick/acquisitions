@@ -1,5 +1,5 @@
 import { db } from '#config/database.js';
-import { sql } from 'drizzle-orm';
+import { avg, sql } from 'drizzle-orm';
 import { CONSTANTS } from './constants.service.js';
 
 export const getDashboardSummaryService = async payload => {
@@ -19,10 +19,6 @@ const handleModeratorInfo = async org_id => {
   const query = `
     WITH pos_stats AS (
         SELECT
-            COUNT(*) FILTER (
-                WHERE po.status = '${CONSTANTS.PURCHASE_ORDER.STATUS.APPROVED}'
-            ) AS approved,
-
             COUNT(*) FILTER (
                 WHERE po.status = '${CONSTANTS.PURCHASE_ORDER.STATUS.AWAITING}'
             ) AS awaiting,
@@ -67,7 +63,6 @@ const handleModeratorInfo = async org_id => {
   return {
     procurements: {
       purchaseOrders: {
-        approved: Number(result.approved || 0),
         awaiting: Number(result.awaiting || 0),
         sent: Number(result.sent || 0),
         completed: Number(result.completed || 0),
@@ -118,42 +113,57 @@ const handleRequesterInfo = async (org_id, user_id) => {
   };
 };
 
-const handleApproverInfo = async (org_id, user_id) => {
-  const query = `
-        WITH pos_stats AS (
-            SELECT
-                COUNT(*) FILTER (WHERE po.status = '${CONSTANTS.PURCHASE_ORDER.STATUS.APPROVED}') AS approved,
-                COUNT(*) FILTER (WHERE po.status = '${CONSTANTS.PURCHASE_ORDER.STATUS.AWAITING}') AS awaiting,
-                COUNT(*) FILTER (WHERE po.status = '${CONSTANTS.PURCHASE_ORDER.STATUS.SENT}') AS sent,
-                COUNT(*) FILTER (WHERE po.status = '${CONSTANTS.PURCHASE_ORDER.STATUS.COMPLETED}') AS completed,
-                COALESCE(SUM(po.total_amount), 0) AS total_spent
-            FROM purchase_orders po
-            INNER JOIN requests r ON po.request_id = r.id
-            WHERE r.org_id = ${org_id}
-        ),
+const handleApproverInfo = async (org_id) => {
+  const result = await db.execute(sql`
+    WITH base_po AS (
+      SELECT
+        po.status,
+        po.created_at,
+        po.updated_at,
+        po.total_amount
+      FROM purchase_orders po
+      INNER JOIN requests r ON po.request_id = r.id
+      WHERE r.org_id = ${org_id}
+    )
 
-        vendors_stats AS (
-            SELECT
-                COUNT(DISTINCT po.vendor_id) AS active_vendors
-            FROM purchase_orders po
-            INNER JOIN requests r ON po.request_id = r.id
-            WHERE r.org_id = ${org_id}
-        )
+    SELECT
+      COUNT(*) FILTER (
+        WHERE status = ${CONSTANTS.PURCHASE_ORDER.STATUS.AWAITING}
+      ) AS awaiting,
 
-        SELECT *
-        FROM pos_stats
-        CROSS JOIN vendors_stats
-        `;
+      COUNT(*) FILTER (
+        WHERE status = ${CONSTANTS.PURCHASE_ORDER.STATUS.SENT}
+      ) AS sent,
 
-  const result = (await db.execute(sql.raw(query))).rows[0];
+      COUNT(*) FILTER (
+        WHERE status = ${CONSTANTS.PURCHASE_ORDER.STATUS.COMPLETED}
+      ) AS completed,
+
+      COALESCE(SUM(total_amount), 0) AS total_spent,
+
+      COALESCE(
+        AVG(EXTRACT(EPOCH FROM (updated_at - created_at))),
+        0
+      ) AS average_approved_time,
+
+      COUNT(*) FILTER (
+        WHERE status = ${CONSTANTS.PURCHASE_ORDER.STATUS.AWAITING}
+          AND created_at < NOW() - INTERVAL '72 hours'
+      ) AS overdue
+
+    FROM base_po
+  `);
+
+  const row = result.rows?.[0] || {};
 
   return {
-    approves: {
-      pending: Number(result.pending || 0),
-      approved: Number(result.approved || 0),
-      rejected: Number(result.rejected || 0),
-      averageApprovedTime: Number(result.average_approved_time || 0),
-      overdue: Number(result.overdue || 0),
+    approver: {
+      awaiting: Number(row.awaiting || 0),
+      sent: Number(row.sent || 0),
+      completed: Number(row.completed || 0),
+      totalSpent: Number(row.total_spent || 0),
+      averageApprovedTime: Number(Math.round(row.average_approved_time || 0)),
+      overdue: Number(row.overdue || 0),
     },
   };
 };
@@ -176,7 +186,7 @@ const handleDefaultInfo = async () => {
         ),
 
         po_avg AS (
-            SELECT COALESCE(AVG(total_amount), 0) AS purchase_orders
+            SELECT COALESCE(AVG(total_amount), 0) AS purchase_orders_avg
             FROM purchase_orders
         )
 
@@ -194,7 +204,9 @@ const handleDefaultInfo = async () => {
         organizations: Number(result.organizations || 0),
         users: Number(result.users || 0),
         actions: Number(result.actions || 0),
-        purchaseOrders: Number(result.purchase_orders || 0),
+      },
+      avgerage: {
+        purchaseOrderAmount: Number(Math.round(result.purchase_orders_avg || 0)),
       },
     },
   };

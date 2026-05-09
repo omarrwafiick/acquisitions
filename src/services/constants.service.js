@@ -15,7 +15,6 @@ export const CONSTANTS = {
   PURCHASE_ORDER: {
     STATUS: {
       AWAITING: 'awaiting',
-      APPROVED: 'approved',
       SENT: 'sent',
       COMPLETED: 'completed',
     },

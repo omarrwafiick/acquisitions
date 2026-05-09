@@ -1,5 +1,5 @@
 import { users } from '#models/user.model.js';
-import { findMany, findOne } from '#repositories/main.repository.js';
+import { create, findMany, findOne, updateOne } from '#repositories/main.repository.js';
 import { and, eq, sql } from 'drizzle-orm';
 import { createAuditLogService } from './auditLog.service.js';
 import NotFoundException from '#exceptions/notFound.exception.js';
@@ -8,6 +8,7 @@ import { requests } from '#models/request.model.js';
 import ForbiddenException from '#exceptions/forbidden.exception.js';
 import { CONSTANTS } from './constants.service.js';
 import logger, { logEventObj } from '#config/logger.js';
+import { audit_logs } from '#models/audit_log.model.js';
 
 export const listPendingApprovalsService = async (query = {}, payload) => {
   const { org_id } = payload;
@@ -23,53 +24,53 @@ export const listPendingApprovalsService = async (query = {}, payload) => {
 };
 
 export const changeRequestStateService = async payload => {
-  const { requestId, approverId, org_id, newStatus, updateReason } = payload;
+  const {
+    requestId,
+    approverId,
+    org_id,
+    newStatus,
+    updateReason,
+  } = payload;
+
   await checkRequestAndApprover(requestId, approverId);
 
-  await db.transaction(async trx => {
-    const request = (
-      await trx.execute(sql`
-                SELECT *
-                FROM requests
-                WHERE id = ${requestId}
-                AND org_id = ${org_id}
-                FOR UPDATE
-            `)
-    ).rows[0];
+  const requestRows = await db.execute(sql`
+    SELECT *
+    FROM requests
+    WHERE id = ${requestId}
+    AND org_id = ${org_id}
+    FOR UPDATE
+  `);
 
-    if (!request) throw new NotFoundException('Request was not found.');
+  const request = requestRows.rows?.[0];
 
-    await handleStateChangeCases({
-      trx,
-      request,
-      newStatus,
-      approverId,
-      updateReason,
-    });
+  if (!request)
+    throw new NotFoundException('Request was not found.');
 
-    await trx.execute(sql`
-        INSERT INTO audit_logs (
-            org_id,
-            actor_id,
-            entity_type,
-            entity_id,
-            action,
-            metadata
-        )
-        VALUES (
-            ${org_id},
-            ${approverId},
-            ${'request'},
-            ${request.id},
-            ${`change_state_${newStatus}`},
-            ${JSON.stringify({})}::jsonb
-        )
-    `);
+  await handleStateChangeCases({
+    request,
+    newStatus,
+    approverId,
+    updateReason,
+  });
+
+  await create(audit_logs, {
+    org_id,
+    actor_id: approverId,
+    entity_type: 'request',
+    entity_id: request.id,
+    action: `change_state_${newStatus}`,
+    metadata: {},
   });
 };
 
 const handleStateChangeCases = async payload => {
-  const { trx, request, newStatus, approverId, updateReason } = payload;
+  const {
+    request,
+    newStatus,
+    approverId,
+    updateReason,
+  } = payload;
 
   const currentStatus = request.status;
 
@@ -79,10 +80,13 @@ const handleStateChangeCases = async payload => {
     (currentStatus === CONSTANTS.REQUEST.STATUS.APPROVED &&
       newStatus === CONSTANTS.REQUEST.STATUS.COMPLETED) ||
     (currentStatus === CONSTANTS.REQUEST.STATUS.SUBMITTED &&
+      newStatus === CONSTANTS.REQUEST.STATUS.REJECTED) ||
+    (currentStatus === CONSTANTS.REQUEST.STATUS.APPROVED &&
       newStatus === CONSTANTS.REQUEST.STATUS.REJECTED);
 
   if (!isValidTransition) {
     const errorMessage = `Invalid status change from ${currentStatus} to ${newStatus}.`;
+
     logger.error(
       logEventObj(
         errorMessage,
@@ -92,18 +96,20 @@ const handleStateChangeCases = async payload => {
         request.id
       )
     );
+
     throw new ForbiddenException(errorMessage);
   }
 
-  await trx
-    .update(requests)
-    .set({
+  await updateOne(
+    requests,
+    {
       status: newStatus,
       approver_id: approverId,
       updated_at: sql`NOW()`,
       update_reason: updateReason,
-    })
-    .where(eq(requests.id, request.id));
+    },
+    eq(requests.id, request.id)
+  );
 
   logger.info(
     logEventObj(
@@ -113,7 +119,8 @@ const handleStateChangeCases = async payload => {
       'Request',
       request.id,
       {
-        approvalAfterTimeStamp: request.updated_at - request.created_at,
+        approvalAfterTimeStamp:
+          request.updated_at - request.created_at,
         updateReason,
       }
     )

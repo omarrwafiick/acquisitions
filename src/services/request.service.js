@@ -14,19 +14,55 @@ import { request_items } from '#models/request_item.model.js';
 import logger, { logEventObj } from '#config/logger.js';
 import { createAuditLogService } from './auditLog.service.js';
 import { CONSTANTS } from './constants.service.js';
-import { db } from '#config/database.js';
+import DuplicateException from '#exceptions/duplicate.exception.js';
 
 export const listRequestsService = async (query = {}, payload) => {
   const { org_id } = payload;
 
-  const rows = await db
-    .select()
-    .from(requests)
-    .where(eq(requests.org_id, org_id))
-    .limit(query.end ?? 20)
-    .offset(query.start ?? 0);
+  const rows = await findManyWithJoin(
+    requests,
+    request_items,
+    eq(requests.org_id, org_id),
+    eq(requests.id, request_items.request_id),
+    undefined,
+    query.start || 0,
+    query.end || 20
+  );
 
-  return rows;
+  const grouped = rows.reduce((acc, row) => {
+    const r = row.requests;
+    const item = row.request_items;
+
+    if (!acc[r.id]) {
+      acc[r.id] = {
+        id: r.id,
+        org_id: r.org_id,
+        created_by: r.created_by,
+        approver_id: r.approver_id,
+        updated_at: r.updated_at,
+        update_reason: r.update_reason,
+        title: r.title,
+        reason: r.reason,
+        status: r.status,
+        created_at: r.created_at,
+        items: []
+      };
+    }
+
+    if (item?.id) {
+      acc[r.id].items.push({
+        id: item.id,
+        request_id: item.request_id,
+        name: item.name,
+        quantity: item.quantity,
+        estimated_price: item.estimated_price,
+      });
+    }
+
+    return acc;
+  }, {});
+
+  return Object.values(grouped);
 };
 
 export const getRequestByIdService = async payload => {
@@ -46,6 +82,19 @@ export const submitRequestService = async payload => {
   const { title, reason, items, org_id, user_id } = payload;
 
   await isUserLinkedToOrganizationService(org_id, user_id);
+
+  const requestExists = await findOne(
+    requests,
+    and(
+      eq(requests.title, title),
+      eq(requests.org_id, org_id),
+      eq(requests.created_by, user_id),
+      eq(requests.status, CONSTANTS.REQUEST.STATUS.SUBMITTED)
+    )
+  );
+
+  if (requestExists)
+    throw new DuplicateException('A request with the same title already exists');
 
   const request = await create(requests, {
     org_id,

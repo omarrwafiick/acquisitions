@@ -18,6 +18,7 @@ import ForbiddenException from '#exceptions/forbidden.exception.js';
 import { vendors } from '#models/vendor.mode.js';
 import { sendEmailService, vendorEmailBodyBuilder } from './email.service.js';
 import logger, { logEventObj } from '#config/logger.js';
+import { request_items} from '#models/request_item.model.js';
 
 export const listPurchaseOrdersService = async (query = {}, payload) => {
   const { org_id } = payload;
@@ -70,23 +71,37 @@ export const createPurchaseOrderService = async payload => {
     ),
     findOne(purchase_orders, eq(purchase_orders.request_id, request_id)),
   ]);
+;
+  if (!request || request.status !== CONSTANTS.REQUEST.STATUS.APPROVED)
+    throw new ForbiddenException('Request was not approved or found');
 
-  if (!request || request[0]?.status !== CONSTANTS.REQUEST.STATUS.APPROVED)
-    throw new ForbiddenException('Request not approved or not found');
+  if (!vendor) throw new NotFoundException('Vendor not found');
 
-  if (!vendor || !vendor[0]) throw new NotFoundException('Vendor not found');
-
-  if (existingPO.length > 0)
+  if (existingPO)
     throw new ForbiddenException(
       'Purchase order already exists for this request'
+    );
+
+  const requestItems = await findMany(request_items, eq(request_items.request_id, request_id));
+
+  if (!requestItems) 
+    throw new NotFoundException('Request items not found');
+
+  const totalEstimatedAmount = requestItems.reduce((total, item) => {
+    return total + item.quantity * item.estimated_price;
+  }, 0);
+
+  if (total_amount < totalEstimatedAmount)
+    throw new ForbiddenException(
+      `Total amount must be at least the total estimated amount of ${totalEstimatedAmount}`
     );
 
   const newPurchaseOrder = await create(purchase_orders, {
     request_id,
     vendor_id,
     created_by: user_id,
-    status: CONSTANTS.PURCHASE_ORDER.STATUS.CREATED,
-    total_amount,
+    status: CONSTANTS.PURCHASE_ORDER.STATUS.AWAITING,
+    total_amount: Number(total_amount),
   });
 
   await createAuditLogService({
@@ -105,72 +120,129 @@ export const createPurchaseOrderService = async payload => {
   return newPurchaseOrder;
 };
 
-export const sendPurchaseOrderService = async payload => {
-  const { org_id, user_id, purchase_order_id } = payload;
-
+const handlePurchaseOrderStateChange = async ({
+  org_id,
+  user_id,
+  purchase_order_id,
+  allowedFrom,
+  newStatus,
+  actionName,
+  metadata = {},
+  sideEffect,
+}) => {
   await isUserLinkedToOrganizationService(org_id, user_id);
 
-  const purchaseOrder = await findWithJoin(
+  const purchaseOrder = await findOne(
     purchase_orders,
-    requests,
-    eq(purchase_orders.id, purchase_order_id),
-    eq(purchase_orders.request_id, requests.id),
-    {
-      id: purchase_orders.id,
-      org_id: requests.org_id,
-      status: purchase_orders.status,
-    }
+    eq(purchase_orders.id, purchase_order_id)
   );
 
-  if (!purchaseOrder) throw new NotFoundException('Purchase order not found');
+  if (!purchaseOrder)
+    throw new NotFoundException('Purchase order not found');
 
-  if (purchaseOrder.org_id !== org_id)
-    throw new ForbiddenException('Unauthorized access to purchase order');
+  const request = await findOne(
+    requests,
+    eq(requests.id, purchaseOrder.request_id)
+  );
 
-  if (purchaseOrder.status !== CONSTANTS.PURCHASE_ORDER.STATUS.CREATED)
-    throw new ForbiddenException('Only created purchase orders can be sent');
+  if (!request)
+    throw new NotFoundException('Associated request not found');
+
+  if (request.org_id !== org_id)
+    throw new ForbiddenException('Unauthorized access');
+
+  if (!allowedFrom.includes(purchaseOrder.status))
+    throw new ForbiddenException(
+      `Invalid state transition from ${purchaseOrder.status}`
+    );
 
   await updateOne(
     purchase_orders,
     {
-      status: CONSTANTS.PURCHASE_ORDER.STATUS.SENT,
+      status: newStatus,
       updated_at: sql`NOW()`,
     },
     eq(purchase_orders.id, purchase_order_id)
   );
-
-  await handleVendorSentRequest(purchaseOrder);
 
   await createAuditLogService({
     org_id,
     actor_id: user_id,
     entity_type: 'purchase_order',
     entity_id: purchase_order_id,
-    action: 'send_purchase_order',
+    action: actionName,
     metadata: {
-      status: CONSTANTS.PURCHASE_ORDER.STATUS.SENT,
+      from: purchaseOrder.status,
+      to: newStatus,
+      ...metadata,
     },
   });
 
   logger.info(
     logEventObj(
-      'Send purchase order',
+      actionName,
       user_id,
       org_id,
       'Purchase Order',
-      purchaseOrder.id,
-      {
-        vendorId: purchaseOrder.vendor_id,
-        requestId: purchaseOrder.request_id,
-        amount: purchaseOrder.total_amount,
-      }
+      purchase_order_id,
+      metadata
     )
   );
 
+  if (sideEffect) {
+    await sideEffect({ purchaseOrder, request, org_id, user_id });
+  }
+
   return {
     id: purchase_order_id,
-    status: CONSTANTS.PURCHASE_ORDER.STATUS.SENT,
+    status: newStatus,
   };
+};
+
+export const sendPurchaseOrderService = async payload => {
+  return handlePurchaseOrderStateChange({
+    ...payload,
+    allowedFrom: [CONSTANTS.PURCHASE_ORDER.STATUS.AWAITING],
+    newStatus: CONSTANTS.PURCHASE_ORDER.STATUS.SENT,
+    actionName: 'send_purchase_order',
+
+    metadata: {
+      status: CONSTANTS.PURCHASE_ORDER.STATUS.SENT,
+    },
+
+    sideEffect: async ({ purchaseOrder }) => {
+      await handleVendorSentRequest(purchaseOrder);
+    },
+  });
+};
+
+export const completePurchaseOrderService = async payload => {
+  return handlePurchaseOrderStateChange({
+    ...payload,
+    allowedFrom: [CONSTANTS.PURCHASE_ORDER.STATUS.SENT],
+    newStatus: CONSTANTS.PURCHASE_ORDER.STATUS.COMPLETED,
+    actionName: 'complete_purchase_order',
+
+    metadata: {
+      status: CONSTANTS.PURCHASE_ORDER.STATUS.COMPLETED,
+    },
+
+    sideEffect: async ({ purchaseOrder }) => {
+      logger.log(
+        logEventObj(
+          'Purchase order completed',
+          payload.user_id,
+          payload.org_id,
+          'Purchase Order',
+          purchaseOrder.id,
+          {
+            completedAfterTimeStamp:
+              purchaseOrder.updated_at - purchaseOrder.created_at,
+          }
+        )
+      );
+    },
+  });
 };
 
 const handleVendorSentRequest = async purchaseOrder => {
@@ -206,69 +278,4 @@ const handleVendorSentRequest = async purchaseOrder => {
     'Official Purchase Order Request.',
     vendorEmailBody
   );
-};
-
-export const completePurchaseOrderService = async payload => {
-  const { org_id, user_id, purchase_order_id } = payload;
-
-  await isUserLinkedToOrganizationService(org_id, user_id);
-
-  const purchaseOrder = await findOneWithJoin(
-    purchase_orders,
-    requests,
-    eq(purchase_orders.id, purchase_order_id),
-    eq(purchase_orders.request_id, requests.id),
-    {
-      id: purchase_orders.id,
-      org_id: requests.org_id,
-      status: purchase_orders.status,
-    }
-  );
-
-  if (!purchaseOrder) throw new NotFoundException('Purchase order not found');
-
-  if (purchaseOrder.org_id !== org_id)
-    throw new ForbiddenException('Unauthorized access to purchase order');
-
-  if (purchaseOrder.status !== CONSTANTS.PURCHASE_ORDER.STATUS.SENT)
-    throw new ForbiddenException('Only sent purchase orders can be completed');
-
-  await updateOne(
-    purchase_orders,
-    {
-      status: CONSTANTS.PURCHASE_ORDER.STATUS.COMPLETED,
-      updated_at: sql`NOW()`,
-    },
-    eq(purchase_orders.id, purchase_order_id)
-  );
-
-  await createAuditLogService({
-    org_id,
-    actor_id: user_id,
-    entity_type: 'purchase_order',
-    entity_id: purchase_order_id,
-    action: 'complete_purchase_order',
-    metadata: {
-      status: CONSTANTS.PURCHASE_ORDER.STATUS.COMPLETED,
-    },
-  });
-
-  logger.log(
-    logEventObj(
-      'Complete purchase order email to vendor',
-      user_id,
-      org_id,
-      'Purchase Order',
-      purchase_order_id,
-      {
-        completedAfterTimeStamp:
-          purchaseOrder.updated_at - purchaseOrder.created_at,
-      }
-    )
-  );
-
-  return {
-    id: purchase_order_id,
-    status: CONSTANTS.PURCHASE_ORDER.STATUS.COMPLETED,
-  };
 };
