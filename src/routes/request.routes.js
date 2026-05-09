@@ -12,6 +12,7 @@ import {
   updateRequestSchema,
 } from '#validations/request.validator.js';
 import { CONSTANTS } from '#services/constants.service.js';
+import { readListSchema } from '#validations/reads.validator.js';
 
 const router = express.Router();
 
@@ -23,6 +24,7 @@ router.post(
     CONSTANTS.ROLES.APPROVER,
     CONSTANTS.ROLES.REQUESTER,
   ]),
+  schemaValidatorMiddleware(readListSchema),
   listRequestsController
 );
 
