@@ -9,6 +9,7 @@ const schemaValidatorMiddleware = schema => (req, res, next) => {
     if (!result.success) {
       throw new InvalidPayloadException(
         'Payload is invalid with the schema.',
+        'validation error',
         formatValidationError(result.error)
       );
     }

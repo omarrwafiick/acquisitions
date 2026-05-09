@@ -6,6 +6,12 @@ export const create = async (table, payload) => {
   return result?.[0] || null;
 };
 
+export const createMany = async (table, payload) => {
+  const result = await db.insert(table).values(payload).returning();
+
+  return result || [];
+};
+
 export const findOne = async (table, whereClause) => {
   const result = await db.select().from(table).where(whereClause).limit(1);
 

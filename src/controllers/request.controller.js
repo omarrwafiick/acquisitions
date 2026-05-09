@@ -32,7 +32,8 @@ export const getRequestByIdController = async (req, res, next) => {
 
 export const submitRequestController = async (req, res, next) => {
   try {
-    const data = await submitRequestService(req.body, {
+    const data = await submitRequestService({
+      ...req.body,
       org_id: req.user.org_id,
       user_id: req.user.id,
     });

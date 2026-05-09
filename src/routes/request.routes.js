@@ -18,7 +18,7 @@ const router = express.Router();
 router.use(authenticationMiddleware);
 
 router.post(
-  '/',
+  '/list',
   roleBasedAccessControlMiddleware([
     CONSTANTS.ROLES.APPROVER,
     CONSTANTS.ROLES.REQUESTER,
@@ -36,7 +36,7 @@ router.get(
 );
 
 router.post(
-  '/:id/submit',
+  '/',
   roleBasedAccessControlMiddleware([CONSTANTS.ROLES.REQUESTER]),
   schemaValidatorMiddleware(submitRequestSchema),
   submitRequestController
