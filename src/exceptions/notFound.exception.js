@@ -1,8 +1,7 @@
-export default class NotFoundException extends Error {
-  constructor(message = 'Resource/s was not found.', cause = 'Unknown') {
-    super(message, { cause });
+import BaseException from "./base.exception.js";
 
-    this.name = 'NotFoundException';
-    this.status = 400;
+export default class NotFoundException extends BaseException {
+  constructor(message = 'Resource/s was not found.', cause = 'Unknown') {
+    super(message, 404, null, cause);
   }
 }

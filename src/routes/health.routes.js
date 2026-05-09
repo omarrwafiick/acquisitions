@@ -2,10 +2,11 @@ import express from 'express';
 import responseHandler from '#utils/response.js';
 import { db } from '#config/database.js';
 import { sql } from 'drizzle-orm';
+import { isDatabaseAlive } from '#repositories/database.operations.repository.js';
 
 const router = express.Router();
 
-router.get('/health', async (_req, res) => {
+router.get('/', async (req, res) => {
   const checks = {
     api: 'up',
     database: 'down',
@@ -14,7 +15,7 @@ router.get('/health', async (_req, res) => {
   let status = 200;
 
   try {
-    await db.execute(sql`SELECT 1`);
+    await isDatabaseAlive();
     checks.database = 'up';
   } catch {
     status = 503;
@@ -34,7 +35,7 @@ router.get('/health', async (_req, res) => {
   );
 });
 
-router.get('/', (req, res) => {
+router.get('/application', (req, res) => {
   responseHandler(req, res, { message: 'API is running...' }, 200);
 });
 

@@ -1,8 +1,14 @@
-export default class ForbiddenException extends Error {
-  constructor(message = 'You are forbidden to access this resource.', cause = 'Unknown') {
-    super(message, { cause });
+import { cookies } from '#utils/cookies.js';
+import BaseException from './base.exception.js';
 
-    this.name = 'ForbiddenException';
-    this.status = 403;
+export default class ForbiddenException extends BaseException {
+  constructor(
+    message = 'You are forbidden to access this resource.',
+    cause = 'Unknown',
+    res = null
+  ) {
+    super(message, 403, null, cause);
+
+    if (res) cookies.clear(res, 'token');
   }
 }

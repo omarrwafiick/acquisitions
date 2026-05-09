@@ -1,8 +1,7 @@
-export default class JwtTokenAuthenticationException extends Error {
-  constructor(message = 'Failed to authenticate JWT token', cause = 'Unknown') {
-    super(message, { cause });
+import BaseException from "./base.exception.js";
 
-    this.name = 'JwtTokenAuthenticationException';
-    this.status = 401;
+export default class JwtTokenAuthenticationException extends BaseException {
+  constructor(message = 'Failed to authenticate JWT token', cause = 'Unknown') {
+    super(message, 401, null, cause);
   }
 }

@@ -25,4 +25,22 @@ if (process.env.NODE_ENV !== 'production') {
   );
 }
 
+export const logEventObj = (
+  event,
+  actorId,
+  orgId,
+  entityType,
+  entityId,
+  metaData = {}
+) => {
+  return {
+    event,
+    actorId,
+    orgId,
+    entityType,
+    entityId,
+    metaData,
+  };
+};
+
 export default logger;

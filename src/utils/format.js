@@ -1,6 +1,13 @@
-export default function formatValidationError(errors){
-  if (!errors || !errors.issues) return null;
-  else if (Array.isArray(errors.issues))
-    return errors.issues.map(i => i.message).join(', ');
-  else return JSON.stringify(errors);
+export const formatValidationError = error => {
+  return (
+    error?.issues?.map(issue => ({
+      field: issue.path.join('.'),
+      message: issue.message,
+    })) ?? null
+  );
 };
+export const formatError = (err) => ({
+  name: err.name || "ServerError",
+  message: err.message || "Unknown error",
+  details: err.details ?? null,
+});

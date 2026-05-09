@@ -1,8 +1,7 @@
-export default class InvalidPasswordException extends Error {
-  constructor(message = 'Password is invalid.', cause = 'Unknown') {
-    super(message, { cause });
+import BaseException from "./base.exception.js";
 
-    this.name = 'InvalidPasswordException';
-    this.status = 400;
+export default class InvalidPasswordException extends BaseException {
+  constructor(message = 'Password is invalid.', cause = 'Unknown') {
+    super(message, 400, null, cause);
   }
 }

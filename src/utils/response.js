@@ -1,12 +1,48 @@
-import logger from '#config/logger.js';
+import logger from "#config/logger.js";
+import { formatError } from "./format.js";
 
-function responseHandler(req, res, data = {}, status = 200) {
-  if (status >= 400) {
-    logger.error(data);
-  } else {
-    logger.info(data);
-  }
-  res.status(status).json(data);
+function responseHandler(req, res, payload = {}, status = 200) {
+  const err =
+    payload instanceof Error
+      ? payload
+      : payload?.error instanceof Error
+        ? payload.error
+        : null;
+
+  const isError = !!err;
+
+  const responseBody = isError
+    ? {
+        error: {
+          name: err.name,
+          message: err.message,
+          details: payload.details ?? null,        }
+      }
+    : payload;
+
+  const logBody = {
+    ...(isError
+      ? {
+          error: {
+            name: err.name,
+            message: err.message,
+            status: err.status,
+            details: err.details ?? null,
+          }
+        }
+      : { data: payload }),
+
+    info: {
+      method: req.method,
+      path: req.originalUrl,
+      ip: req.ip,
+      userAgent: req.headers["user-agent"],
+    },
+  };
+
+  logger[status >= 400 ? "error" : "info"](logBody);
+
+  return res.status(status).json(responseBody);
 }
 
 export default responseHandler;
