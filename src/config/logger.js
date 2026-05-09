@@ -39,7 +39,7 @@ export const logEventObj = (
     orgId,
     entityType,
     entityId,
-    metadata,
+    metaData,
   };
 };
 

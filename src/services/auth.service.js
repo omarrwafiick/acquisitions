@@ -33,7 +33,8 @@ export const createUser = async (req, res, addMember) => {
     eq(organizations.id, org_id)
   );
 
-  if (!organization) throw new NotFoundException('Organization was not found.');
+  if (!organization) 
+    throw new NotFoundException('Organization was not found.');
 
   if (role === CONSTANTS.ROLES.MODERATOR)
     await isOrganizationHasModerator({ org_id, req });

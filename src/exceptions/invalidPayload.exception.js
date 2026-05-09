@@ -1,9 +1,7 @@
-export default class InvalidPayloadException extends Error {
-  constructor(message = 'Payload is invalid to pass.', details = null) {
-    super(message);
+import BaseException from "./base.exception.js";
 
-    this.name = 'InvalidPayloadException';
-    this.status = 400;
-    this.details = details;
+export default class InvalidPayloadException extends BaseException {
+  constructor(message = 'Payload is invalid to pass.', details = null) {
+    super(message, 400, null, cause);
   }
 }

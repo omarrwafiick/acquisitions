@@ -1,8 +1,7 @@
-export default class DuplicateException extends Error {
-  constructor(message = 'Duplicates are not allowed.', cause = 'Unknown') {
-    super(message, { cause });
+import BaseException from "./base.exception.js";
 
-    this.name = 'DuplicateException';
-    this.status = 400;
+export default class DuplicateException extends BaseException {
+  constructor(message = 'Duplicates are not allowed.', cause = 'Unknown') {
+    super(message, 401, null, cause);
   }
 }

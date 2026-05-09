@@ -6,7 +6,7 @@ const roleBaseAccessControlMiddleware =
   (req, res, next) => {
     const { role, id, org_id } = req.user;
     try {
-      if (!role || !roles.includes(userRole)) {
+      if (!role || !roles.includes(role)) {
         throw new ForbiddenException(
           'Your role is not authorized for this action.',
           'No permission',
