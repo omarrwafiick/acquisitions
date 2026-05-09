@@ -9,6 +9,7 @@ import schemaValidatorMiddleware from '#middleware/schemaValidator.middleware.js
 import roleBasedAccessControlMiddleware from '#middleware/roleBasedAccessControl.middleware.js';
 import { createVendorSchema } from '#validations/vendor.validator.js';
 import { CONSTANTS } from '#services/constants.service.js';
+import { readListSchema } from '#validations/reads.validator.js';
 
 const router = express.Router();
 
@@ -21,6 +22,7 @@ router.post(
     CONSTANTS.ROLES.REQUESTER,
     CONSTANTS.ROLES.APPROVER,
   ]),
+  schemaValidatorMiddleware(readListSchema),
   listVendorsController
 );
 

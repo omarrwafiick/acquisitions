@@ -11,6 +11,7 @@ import schemaValidatorMiddleware from '#middleware/schemaValidator.middleware.js
 import roleBasedAccessControlMiddleware from '#middleware/roleBasedAccessControl.middleware.js';
 import { createPurchaseOrderSchema } from '#validations/purchaseOrder.validator.js';
 import { CONSTANTS } from '#services/constants.service.js';
+import { readListSchema } from '#validations/reads.validator.js';
 
 const router = express.Router();
 
@@ -21,6 +22,7 @@ router.post(
   roleBasedAccessControlMiddleware([
     CONSTANTS.ROLES.MODERATOR
   ]),
+  schemaValidatorMiddleware(readListSchema),
   listPurchaseOrdersController
 );
 
