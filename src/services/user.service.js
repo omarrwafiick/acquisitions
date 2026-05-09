@@ -1,4 +1,4 @@
-import { findMany } from '#repositories/main.repository.js';
+import { findMany, findOne } from '#repositories/main.repository.js';
 import { users } from '#models/user.model.js';
 import { and, eq, not } from 'drizzle-orm';
 import { organizations } from '#models/organization.model.js';

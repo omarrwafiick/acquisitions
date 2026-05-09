@@ -15,7 +15,7 @@ const router = express.Router();
 router.use(authenticationMiddleware);
 
 router.post(
-  '/',
+  '/list',
   roleBasedAccessControlMiddleware([
     CONSTANTS.ROLES.MODERATOR,
     CONSTANTS.ROLES.REQUESTER,

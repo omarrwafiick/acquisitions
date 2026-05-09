@@ -24,7 +24,8 @@ export const createVendorService = async payload => {
     eq(organizations.id, org_id)
   );
 
-  if (!organization) throw new NotFoundException('Organization was not found.');
+  if (!organization) 
+    throw new NotFoundException('Organization was not found.');
 
   const [vendorExists, userExists] = await Promise.all([
     findOne(
@@ -57,10 +58,17 @@ export const createVendorService = async payload => {
   });
 
   logger.info(
-    logEventObj('Create vendor', user_id, org_id, 'vendor', newVendor.id, {
-      name,
-      email,
-    })
+    logEventObj(
+      'Create vendor', 
+      user_id, 
+      org_id, 
+      'vendor', 
+      newVendor.id, 
+      {
+        name,
+        email,
+      }
+    )
   );
 
   return newVendor;
@@ -78,8 +86,13 @@ export const listVendorsService = async (query = {}, payload) => {
 
 export const getVendorByIdService = async payload => {
   const { id, org_id } = payload;
-  return await findOne(
+  const result = await findOne(
     vendors,
     and(eq(vendors.id, id), eq(vendors.org_id, org_id))
   );
+
+  if (!result) 
+    throw new NotFoundException('Vendor was not found.');
+  
+  return result;
 };

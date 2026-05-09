@@ -24,7 +24,7 @@ const roleBaseAccessControlMiddleware =
           info: {
             userRole: role,
             userOrgId: org_id,
-            userId: id,
+            userId: id??'Unknown',
             method: req.method,
             path: req.path,
             ip: req.ip,

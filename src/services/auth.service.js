@@ -52,7 +52,7 @@ export const createUser = async (req, res, addMember) => {
   logger.info(
     logEventObj(
       'Account creation',
-      newUser.id,
+      newUser.id??'Unknown',
       org_id,
       'register',
       newUser.id,
@@ -176,7 +176,7 @@ const isOrganizationHasModerator = async ({ org_id, req }) => {
       logEventObj(
         'Attempt to create new moderator to organization already has onw',
         'UNKNOWN',
-        org_id,
+        org_id??'Unknown',
         'Business rule violation',
         org_id,
         {
@@ -196,12 +196,19 @@ const isOrganizationHasModerator = async ({ org_id, req }) => {
 
 const failedLoginAttemptLog = (req, user, reason) => {
   logger.info(
-    logEventObj('Login failed', user.id, user.org_id, reason, user.id, {
-      method: req.method,
-      path: req.path,
-      ip: req.ip,
-      userAgent: req.headers['user-agent'],
-    })
+    logEventObj(
+      'Login failed',
+      user?.id ?? 'UNKNOWN',
+      user?.org_id ?? 'UNKNOWN',
+      reason,
+      user?.id ?? 'UNKNOWN',
+      {
+        method: req.method,
+        path: req.path,
+        ip: req.ip,
+        userAgent: req.headers['user-agent'],
+      }
+    )
   );
 };
 
