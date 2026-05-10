@@ -36,7 +36,7 @@ router.get('/', async (req, res) => {
 });
 
 router.get('/application', (req, res) => {
-  responseHandler(req, res, { message: 'API is running...' }, 200);
+  responseHandler(req, res, { message: 'API is running' }, 200);
 });
 
 export default router;
