@@ -1,13 +1,13 @@
 import responseHandler from '#utils/response.js';
 import {
-  createUser,
-  checkUserExistance,
+  registerService,
+  loginService,
   logoutUser,
 } from '#services/auth.service.js';
 
 export const register = addMember => async (req, res, next) => {
   try {
-    const data = await createUser(req, res, addMember);
+    const data = await registerService(req, res, addMember);
 
     responseHandler(
       req,
@@ -22,7 +22,7 @@ export const register = addMember => async (req, res, next) => {
 
 export const login = async (req, res, next) => {
   try {
-    const user = await checkUserExistance(req, res);
+    const user = await loginService(req, res);
 
     responseHandler(
       req,
