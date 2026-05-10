@@ -1,11 +1,9 @@
 import logger from '#config/logger.js';
 import { isDatabaseAlive } from '#repositories/database.operations.repository.js';
-import app from './app.js';
+import { app, API_URL} from './app.js';
 
 const PORT = process.env.PORT || 3000;
 const HOST = process.env.HOST || 'localhost';
-const URL = process.env.URL || '/api';
-const VERSION = process.env.VERSION || '/v1';
 const PROTOCOL = process.env.PROTOCOL || 'http'
 
 const isDbAlive = await isDatabaseAlive();
@@ -37,7 +35,7 @@ app.listen(PORT, async () => {
     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     📍 Host : ${HOST}
     🔌 Port : ${PORT}
-    🌐 URL  : ${PROTOCOL}://${HOST}:${PORT}/${URL}${VERSION}
+    🌐 URL  : ${PROTOCOL}://${HOST}:${PORT}/${API_URL}
     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   `);
 });

@@ -12,8 +12,6 @@ import healthRoutes from './health.routes.js';
 
 const router = express.Router();
 
-router.use('/health', healthRoutes);
-
 router.use('/auth', authRoutes);
 
 router.use('/organizations', organizationRoutes);
@@ -36,4 +34,4 @@ router.use((req, res) => {
   res.status(404).json({ error: 'Route not found' });
 });
 
-export default router;
+export { router,  healthRoutes };

@@ -1,9 +1,9 @@
-import app from '#src/app.js';
+import { app } from '#src/app.js';
 
 describe('API Endpoints', () => {
     describe('GET /health', () => {
         it('should return a health check response', async () => {
-            const response = await request(app).get('/api/v1/health');
+            const response = await request(app).get('/api/health');
             expect(response.status).toBe(200);
             expect(response.body).toHaveProperty('status', 'healthy');
             expect(response.body).toHaveProperty('uptime');
@@ -17,7 +17,7 @@ describe('API Endpoints', () => {
 
     describe('GET /health/application', () => {
         it('should return that app is running', async () => {
-            const response = await request(app).get('/api/v1/health/application');
+            const response = await request(app).get('/api/health/app');
             expect(response.status).toBe(200);
             expect(response.body).toHaveProperty('message', 'API is running');
         });
@@ -25,7 +25,7 @@ describe('API Endpoints', () => {
 
     describe('GET /non-existent', () => {
         it('should return a 404 error', async () => {
-            const response = await request(app).get('/api/v1/health/non-existent');
+            const response = await request(app).get('/api/non-existent');
             expect(response.status).toBe(404);
             expect(response.body).toHaveProperty('error', 'Route not found');
         });

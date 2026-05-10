@@ -4,7 +4,7 @@ import cookieParser from 'cookie-parser';
 import express from 'express';
 import helmet from 'helmet';
 import morgan from 'morgan';
-import mainRouter from '#routes/index.js';
+import { router, healthRoutes } from '#routes/index.js';
 import securityMiddleware from '#middleware/security.middleware.js';
 
 const app = express();
@@ -27,8 +27,12 @@ app.use(
 
 app.use(securityMiddleware);
 
-const MAIN_URL = `${process.env.URL}${process.env.VERSION}`;
+const MAIN_URL = `${process.env.URL}`;
 
-app.use(`/${MAIN_URL}`, mainRouter);
+const API_URL = `${MAIN_URL}${process.env.VERSION}`;
 
-export default app;
+app.use(`/${MAIN_URL}`, healthRoutes);
+
+app.use(`/${API_URL}`, router);
+
+export { app, API_URL};
