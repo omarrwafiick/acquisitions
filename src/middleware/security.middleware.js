@@ -62,30 +62,21 @@ const securityDecisionTree = async (req, res, next, decision, message) => {
     responseHandler(
       req,
       res,
-      {
-        error: new Error('Automated traffic detected'),
-        message,
-      },
+      new Error(`Bot detected: ${message}`),
       403
     );
   } else if (decision.isDenied() && decision.reason.isShield()) {
     responseHandler(
       req,
       res,
-      {
-        error: new Error('Shield protection triggered'),
-        message,
-      },
+      new Error(`Shield protection triggered: ${message}`),
       403
     );
   } else if (decision.isDenied() && decision.reason.isRateLimit()) {
     responseHandler(
       req,
       res,
-      {
-        error: new Error('Rate limit exceeded'),
-        message,
-      },
+      new Error(`Rate limit exceeded: ${message}`),
       429
     );
   } else {
