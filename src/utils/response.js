@@ -16,7 +16,7 @@ function responseHandler(req, res, payload = {}, status = 200) {
         error: {
           name: err.name,
           message: err.message,
-          details: payload.details ?? null,        }
+          details: payload.details ?? null }
       }
     : payload;
 

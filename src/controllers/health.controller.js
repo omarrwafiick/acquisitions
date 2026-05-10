@@ -17,5 +17,5 @@ export const getAppHealthController = async (req, res, next) => {
 };
 
 export const pingAppHealthController = async (req, res, next) => {
-    responseHandler(req, res, { message: 'API is running' }, 200);
+  responseHandler(req, res, { message: 'API is running' }, 200);
 };
