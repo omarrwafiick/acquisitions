@@ -5,6 +5,7 @@ import express from 'express';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import mainRouter from '#routes/index.js';
+import securityMiddleware from '#middleware/security.middleware.js';
 
 const app = express();
 
@@ -23,6 +24,8 @@ app.use(
     stream: { write: message => logger.info(message.trim()) },
   })
 );
+
+app.use(securityMiddleware);
 
 const MAIN_URL = `${process.env.URL}${process.env.VERSION}`;
 
