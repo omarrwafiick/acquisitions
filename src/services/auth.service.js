@@ -17,7 +17,7 @@ import { cookies } from '#utils/cookies.js';
 import { CONSTANTS } from './constants.service.js';
 import { vendors } from '#models/vendor.mode.js';
 
-export const createUser = async (req, res, addMember) => {
+export const registerService = async (req, res, addMember) => {
   const { name, email, password, role, org_id } = req.body;
 
   const [existingUser, existingVendor] = await Promise.all([
@@ -91,7 +91,7 @@ export const createUser = async (req, res, addMember) => {
   return mapUserInfo(newUser);
 };
 
-export const checkUserExistance = async (req, res) => {
+export const loginService = async (req, res) => {
   const { email, password } = req.body;
 
   const user = await findOne(users, eq(users.email, email));
