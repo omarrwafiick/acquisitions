@@ -36,6 +36,9 @@ jobs:
             type=raw,value=latest
             type=raw,value=prod-{{date 'YYYYMMDD-HHmmss'}}
             
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+            
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
