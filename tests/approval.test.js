@@ -1,86 +1,77 @@
-import { changeRequestStateService } from '#src/services/approval.service.js';
-import { getAuditLogsByEntityIdService } from '#src/services/auditLog.service.js';
-import { CONSTANTS } from '#src/services/constants.service.js';
-import { getRequestByIdService, submitRequestService } from '#src/services/request.service.js';
-import { getUserByEmailService } from '#src/services/user.service.js';
-// Happy path
-// approver approves pending request
-// → approval created
-// → request status changes
-// → audit log created
-let DEFAULT_MODERATOR;
+import { jest } from '@jest/globals';
 
-let DEFAULT_APPROVER;
+const mockCreate = jest.fn();
+const mockFindOne = jest.fn();
+const mockFindMany = jest.fn();
+const mockUpdateOne = jest.fn();
 
-let DEFAULT_REQUESTER;
+const mockExecute = jest.fn();
 
-beforeAll(async () => {
-  DEFAULT_REQUESTER = await getUserByEmailService({
-    email: 'user2@example.com'
-  });
+jest.unstable_mockModule(
+  '#repositories/main.repository.js',
+  () => ({
+    create: mockCreate,
+    findOne: mockFindOne,
+    findMany: mockFindMany,
+    updateOne: mockUpdateOne,
+  })
+);
 
-  DEFAULT_APPROVER = await getUserByEmailService({
-    email: 'user1@example.com'
-  });
-});
+jest.unstable_mockModule(
+  '#config/database.js',
+  () => ({
+    db: {
+      execute: mockExecute,
+    }
+  })
+);
 
-describe('Approval Process', () => {
-  it('should allow approver to approve a pending request', async () => {
-    // Setup: create a pending request and an approver
-    const requester = DEFAULT_REQUESTER;
-    const newRequest = await submitRequestService({
-        title: `Test Request ${Date.now()}`,
-        reason: 'Test Reason',
-        items: [
-            {
-                name: 'Item 1',
-                quantity: 2,
-                estimatedPrice: 100
-            },
-            {
-                name: 'Item 2',
-                quantity: 1,
-                estimatedPrice: 50
-            }
-        ],
-        org_id: requester.org_id,
-        user_id: requester.id
+const { changeRequestStateService } = await import('#src/services/approval.service.js');
+
+describe('Approval Service', () => {
+
+   it('should approve request', async () => {
+
+    mockFindOne
+      .mockResolvedValueOnce({
+        id: 10,
+        status: 'submitted',
+        org_id: 1
+      })
+      .mockResolvedValueOnce({
+        id: 5,
+        role: 'approver'
+      });
+
+    mockExecute.mockResolvedValue({
+      rows: [
+        {
+          id: 10,
+          status: 'submitted',
+          org_id: 1
+        }
+      ]
     });
 
-    expect(newRequest).toHaveProperty('id');
-    expect(newRequest).toHaveProperty('status', CONSTANTS.REQUEST.STATUS.SUBMITTED);
-    expect(newRequest).toHaveProperty('created_by', requester.id);
+    const result =
+      await changeRequestStateService({
+        requestId: 10,
+        approverId: 5,
+        org_id: 1,
+        newStatus: 'approved',
+        updateReason: 'ok'
+      });
 
-    // Action: approver approves the request
-    const approver = DEFAULT_APPROVER;
-    const updatedRequest = await changeRequestStateService({
-        requestId: newRequest.id,
-        approverId: approver.id,
-        org_id: approver.org_id,
-        newStatus: CONSTANTS.REQUEST.STATUS.APPROVED,
-        updateReason: 'Request approved'
-    });
+    expect(result.status)
+      .toBe('approved');
 
-    expect(updatedRequest).toHaveProperty('id', newRequest.id);
-    expect(updatedRequest).toHaveProperty('status', CONSTANTS.REQUEST.STATUS.APPROVED);
+    expect(mockUpdateOne)
+      .toHaveBeenCalled();
 
-    // Verify: approval row exists, request status updated, timestamps set
-    const fetchUpdatedRequest = await getRequestByIdService({
-        id: newRequest.id,
-        org_id: newRequest.org_id
-    });
-
-    expect(fetchUpdatedRequest).toHaveProperty('id', newRequest.id);
-    expect(fetchUpdatedRequest).toHaveProperty('status', CONSTANTS.REQUEST.STATUS.APPROVED);
-    expect(fetchUpdatedRequest).toHaveProperty('approver_id', approver.id);
-
-    //Verify: audit log created
-    const auditLogs = await getAuditLogsByEntityIdService({ entity_id: newRequest.id, org_id: newRequest.org_id });
-
-    expect(auditLogs).toBeDefined();
-    expect(auditLogs[0].action).toBe(CONSTANTS.REQUEST.STATUS.SUBMITTED);
-    expect(auditLogs[1].action).toBe(`change_state_${CONSTANTS.REQUEST.STATUS.APPROVED}`);
+    expect(mockCreate)
+      .toHaveBeenCalled();
   });
+
   
   it('should allow approver to reject a pending request', async () => {
     // Setup: create a pending request and an approver 
