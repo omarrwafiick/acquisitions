@@ -62,6 +62,11 @@ export const changeRequestStateService = async payload => {
     action: `change_state_${newStatus}`,
     metadata: {},
   });
+
+  return {
+    id: request.id,
+    status: newStatus,
+  };
 };
 
 const handleStateChangeCases = async payload => {

@@ -25,3 +25,11 @@ export const isUserLinkedToOrganizationService = async (org_id, user_id) => {
 
   return user;
 };
+
+export const getUserByEmailService = async (payload) => {
+  const { email } = payload;
+  return await findOne(
+    users,
+    eq(users.email, email)
+  );
+};

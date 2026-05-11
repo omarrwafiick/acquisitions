@@ -40,7 +40,7 @@ function responseHandler(req, res, payload = {}, status = 200) {
     },
   };
 
-  logger[status >= 400 ? "error" : "info"](logBody);
+  logger[status >= 400 ? "error" : "info"](JSON.stringify(logBody));
 
   return res.status(status).json(responseBody);
 }
