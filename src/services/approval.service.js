@@ -32,20 +32,7 @@ export const changeRequestStateService = async payload => {
     updateReason,
   } = payload;
 
-  await checkRequestAndApprover(requestId, approverId);
-
-  const requestRows = await db.execute(sql`
-    SELECT *
-    FROM requests
-    WHERE id = ${requestId}
-    AND org_id = ${org_id}
-    FOR UPDATE
-  `);
-
-  const request = requestRows.rows?.[0];
-
-  if (!request)
-    throw new NotFoundException('Request was not found.');
+  const { request } = await checkRequestAndApprover(requestId, approverId, org_id);
 
   await handleStateChangeCases({
     request,
@@ -132,11 +119,19 @@ const handleStateChangeCases = async payload => {
   );
 };
 
-const checkRequestAndApprover = async (requestId, approverId) => {
-  const [request, approver] = await Promise.all([
-    findOne(requests, eq(requests.id, requestId)),
+const checkRequestAndApprover = async (requestId, approverId, org_id) => {
+  let [request, approver] = await Promise.all([
+    db.execute(sql`
+      SELECT *
+      FROM requests
+      WHERE id = ${requestId}
+      AND org_id = ${org_id}
+      FOR UPDATE
+    `),
     findOne(users, eq(users.id, approverId)),
   ]);
+
+  request = request.rows?.[0];
 
   if (approver.role !== CONSTANTS.ROLES.APPROVER)
     throw new ForbiddenException('User is not in role.');
