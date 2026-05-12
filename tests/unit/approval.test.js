@@ -1,5 +1,5 @@
 import { CONSTANTS } from '#src/services/constants.service.js';
-import { mockedCalls } from './helpers/mocked.calls.js';
+import { mockedCalls } from '../helpers/mocked.calls.js';
 
 const { mockCreate, mockFindOne, mockUpdateOne, mockExecute } = mockedCalls;
 

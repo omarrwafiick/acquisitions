@@ -3,8 +3,9 @@ import { jest } from '@jest/globals';
 const mockCreate = jest.fn();
 const mockFindOne = jest.fn();
 const mockFindMany = jest.fn();
+const mockFindManyWithJoin = jest.fn();
 const mockUpdateOne = jest.fn();
-
+const mockCreateMany = jest.fn();
 const mockExecute = jest.fn();
 
 jest.unstable_mockModule(
@@ -13,7 +14,9 @@ jest.unstable_mockModule(
     create: mockCreate,
     findOne: mockFindOne,
     findMany: mockFindMany,
+    findManyWithJoin: mockFindManyWithJoin,
     updateOne: mockUpdateOne,
+    createMany: mockCreateMany,
   })
 );
 
@@ -27,9 +30,11 @@ jest.unstable_mockModule(
 );
 
 export const mockedCalls = {
-    mockCreate,
-    mockFindOne,
-    mockFindMany,
-    mockUpdateOne,
-    mockExecute
+  mockCreate,
+  mockFindOne,
+  mockFindMany,
+  mockFindManyWithJoin,
+  mockUpdateOne,
+  mockCreateMany,
+  mockExecute,
 };
