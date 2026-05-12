@@ -19,7 +19,8 @@ router.use(roleBasedAccessControlMiddleware(['approver']));
 router.post(
   '/list/pending',
   schemaValidatorMiddleware(readListSchema),
-  listPendingApprovalsController);
+  listPendingApprovalsController
+);
 
 router.post(
   '/:id/approve',

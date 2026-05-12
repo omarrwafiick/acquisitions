@@ -12,8 +12,6 @@ import healthRoutes from './health.routes.js';
 
 const router = express.Router();
 
-router.use('/health', healthRoutes);
-
 router.use('/auth', authRoutes);
 
 router.use('/organizations', organizationRoutes);
@@ -32,4 +30,4 @@ router.use('/dashboard', dashboardRoutes);
 
 router.use('/audit-logs', auditLogRoutes);
 
-export default router;
+export { router, healthRoutes };

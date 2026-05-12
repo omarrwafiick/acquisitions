@@ -31,10 +31,7 @@ export const findMany = async (table, whereClause, start = 0, end = 20) => {
 };
 
 const findWithJoin = (table, relatedTable, whereClause, joinClause, fields) => {
-  let query = db
-    .select(fields)
-    .from(table)
-    .innerJoin(relatedTable, joinClause);
+  let query = db.select(fields).from(table).innerJoin(relatedTable, joinClause);
 
   if (whereClause) {
     query = query.where(whereClause);

@@ -113,7 +113,7 @@ const handleRequesterInfo = async (org_id, user_id) => {
   };
 };
 
-const handleApproverInfo = async (org_id) => {
+const handleApproverInfo = async org_id => {
   const result = await db.execute(sql`
     WITH base_po AS (
       SELECT
@@ -206,7 +206,9 @@ const handleDefaultInfo = async () => {
         actions: Number(result.actions || 0),
       },
       avgerage: {
-        purchaseOrderAmount: Number(Math.round(result.purchase_orders_avg || 0)),
+        purchaseOrderAmount: Number(
+          Math.round(result.purchase_orders_avg || 0)
+        ),
       },
     },
   };

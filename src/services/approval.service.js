@@ -1,5 +1,10 @@
 import { users } from '#models/user.model.js';
-import { create, findMany, findOne, updateOne } from '#repositories/main.repository.js';
+import {
+  create,
+  findMany,
+  findOne,
+  updateOne,
+} from '#repositories/main.repository.js';
 import { and, eq, sql } from 'drizzle-orm';
 import { createAuditLogService } from './auditLog.service.js';
 import NotFoundException from '#exceptions/notFound.exception.js';
@@ -24,28 +29,13 @@ export const listPendingApprovalsService = async (query = {}, payload) => {
 };
 
 export const changeRequestStateService = async payload => {
-  const {
+  const { requestId, approverId, org_id, newStatus, updateReason } = payload;
+
+  const { request } = await checkRequestAndApprover(
     requestId,
     approverId,
-    org_id,
-    newStatus,
-    updateReason,
-  } = payload;
-
-  await checkRequestAndApprover(requestId, approverId);
-
-  const requestRows = await db.execute(sql`
-    SELECT *
-    FROM requests
-    WHERE id = ${requestId}
-    AND org_id = ${org_id}
-    FOR UPDATE
-  `);
-
-  const request = requestRows.rows?.[0];
-
-  if (!request)
-    throw new NotFoundException('Request was not found.');
+    org_id
+  );
 
   await handleStateChangeCases({
     request,
@@ -62,15 +52,15 @@ export const changeRequestStateService = async payload => {
     action: `change_state_${newStatus}`,
     metadata: {},
   });
+
+  return {
+    id: request.id,
+    status: newStatus,
+  };
 };
 
 const handleStateChangeCases = async payload => {
-  const {
-    request,
-    newStatus,
-    approverId,
-    updateReason,
-  } = payload;
+  const { request, newStatus, approverId, updateReason } = payload;
 
   const currentStatus = request.status;
 
@@ -119,19 +109,26 @@ const handleStateChangeCases = async payload => {
       'Request',
       request.id,
       {
-        approvalAfterTimeStamp:
-          request.updated_at - request.created_at,
+        approvalAfterTimeStamp: request.updated_at - request.created_at,
         updateReason,
       }
     )
   );
 };
 
-const checkRequestAndApprover = async (requestId, approverId) => {
-  const [request, approver] = await Promise.all([
-    findOne(requests, eq(requests.id, requestId)),
+const checkRequestAndApprover = async (requestId, approverId, org_id) => {
+  let [request, approver] = await Promise.all([
+    db.execute(sql`
+      SELECT *
+      FROM requests
+      WHERE id = ${requestId}
+      AND org_id = ${org_id}
+      FOR UPDATE
+    `),
     findOne(users, eq(users.id, approverId)),
   ]);
+
+  request = request.rows?.[0];
 
   if (approver.role !== CONSTANTS.ROLES.APPROVER)
     throw new ForbiddenException('User is not in role.');

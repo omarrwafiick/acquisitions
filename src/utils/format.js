@@ -6,8 +6,8 @@ export const formatValidationError = error => {
     })) ?? null
   );
 };
-export const formatError = (err) => ({
-  name: err.name || "ServerError",
-  message: err.message || "Unknown error",
+export const formatError = err => ({
+  name: err.name || 'ServerError',
+  message: err.message || 'Unknown error',
   details: err.details ?? null,
 });

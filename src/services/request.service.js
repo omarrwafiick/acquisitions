@@ -15,6 +15,7 @@ import logger, { logEventObj } from '#config/logger.js';
 import { createAuditLogService } from './auditLog.service.js';
 import { CONSTANTS } from './constants.service.js';
 import DuplicateException from '#exceptions/duplicate.exception.js';
+import ForbiddenException from '#exceptions/forbidden.exception.js';
 
 export const listRequestsService = async (query = {}, payload) => {
   const { org_id } = payload;
@@ -45,7 +46,7 @@ export const listRequestsService = async (query = {}, payload) => {
         reason: r.reason,
         status: r.status,
         created_at: r.created_at,
-        items: []
+        items: [],
       };
     }
 
@@ -71,17 +72,19 @@ export const getRequestByIdService = async payload => {
     requests,
     and(eq(requests.id, id), eq(requests.org_id, org_id))
   );
-  
-  if (!result) 
-    throw new NotFoundException('Request not found');
-  
+
+  if (!result) throw new NotFoundException('Request not found');
+
   return result;
 };
 
 export const submitRequestService = async payload => {
   const { title, reason, items, org_id, user_id } = payload;
 
-  await isUserLinkedToOrganizationService(org_id, user_id);
+  const user = await isUserLinkedToOrganizationService(org_id, user_id);
+
+  if (!user.role || user.role !== CONSTANTS.ROLES.REQUESTER)
+    throw new ForbiddenException('User is not in a requester role.');
 
   const requestExists = await findOne(
     requests,
@@ -94,7 +97,9 @@ export const submitRequestService = async payload => {
   );
 
   if (requestExists)
-    throw new DuplicateException('A request with the same title already exists');
+    throw new DuplicateException(
+      'A request with the same title already exists.'
+    );
 
   const request = await create(requests, {
     org_id,
@@ -104,15 +109,17 @@ export const submitRequestService = async payload => {
     status: CONSTANTS.REQUEST.STATUS.SUBMITTED,
   });
 
-  if (!request)
-    throw new Error('Failed to create request');
+  if (!request) throw new Error('Failed to create request.');
 
-  await createMany(request_items, items.map(item => ({
-    request_id: request.id,
-    name: item.name,
-    quantity: item.quantity,
-    estimated_price: item.estimatedPrice,
-  })));
+  await createMany(
+    request_items,
+    items.map(item => ({
+      request_id: request.id,
+      name: item.name,
+      quantity: item.quantity,
+      estimated_price: item.estimatedPrice,
+    }))
+  );
 
   await createAuditLogService({
     org_id,

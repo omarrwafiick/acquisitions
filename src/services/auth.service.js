@@ -33,8 +33,7 @@ export const registerService = async (req, res, addMember) => {
     eq(organizations.id, org_id)
   );
 
-  if (!organization) 
-    throw new NotFoundException('Organization was not found.');
+  if (!organization) throw new NotFoundException('Organization was not found.');
 
   if (role === CONSTANTS.ROLES.MODERATOR)
     await isOrganizationHasModerator({ org_id, req });
@@ -52,7 +51,7 @@ export const registerService = async (req, res, addMember) => {
   logger.info(
     logEventObj(
       'Account creation',
-      newUser.id??'Unknown',
+      newUser.id ?? 'Unknown',
       org_id,
       'register',
       newUser.id,
@@ -176,7 +175,7 @@ const isOrganizationHasModerator = async ({ org_id, req }) => {
       logEventObj(
         'Attempt to create new moderator to organization already has onw',
         'UNKNOWN',
-        org_id??'Unknown',
+        org_id ?? 'Unknown',
         'Business rule violation',
         org_id,
         {

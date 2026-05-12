@@ -19,18 +19,14 @@ router.use(authenticationMiddleware);
 
 router.post(
   '/list',
-  roleBasedAccessControlMiddleware([
-    CONSTANTS.ROLES.MODERATOR
-  ]),
+  roleBasedAccessControlMiddleware([CONSTANTS.ROLES.MODERATOR]),
   schemaValidatorMiddleware(readListSchema),
   listPurchaseOrdersController
 );
 
 router.get(
   '/:id',
-  roleBasedAccessControlMiddleware([
-    CONSTANTS.ROLES.MODERATOR
-  ]),
+  roleBasedAccessControlMiddleware([CONSTANTS.ROLES.MODERATOR]),
   getPurchaseOrderByIdController
 );
 
