@@ -7,7 +7,7 @@ export const createPurchaseOrderSchema = z.object({
 
   total_amount: z.coerce.number().positive(),
 
-  approval_reason: z.string().max(500).trim().optional()
+  approval_reason: z.string().max(500).trim().optional(),
 });
 
 export const updatePurchaseOrderSchema = z.object({

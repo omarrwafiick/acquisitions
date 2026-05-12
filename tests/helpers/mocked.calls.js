@@ -9,27 +9,21 @@ const mockCreateMany = jest.fn();
 const mockExecute = jest.fn();
 const mockFindOneWithJoin = jest.fn();
 
-jest.unstable_mockModule(
-  '#repositories/main.repository.js',
-  () => ({
-    create: mockCreate,
-    findOne: mockFindOne,
-    findMany: mockFindMany,
-    findManyWithJoin: mockFindManyWithJoin,
-    findOneWithJoin: mockFindOneWithJoin,
-    updateOne: mockUpdateOne,
-    createMany: mockCreateMany,
-  })
-);
+jest.unstable_mockModule('#repositories/main.repository.js', () => ({
+  create: mockCreate,
+  findOne: mockFindOne,
+  findMany: mockFindMany,
+  findManyWithJoin: mockFindManyWithJoin,
+  findOneWithJoin: mockFindOneWithJoin,
+  updateOne: mockUpdateOne,
+  createMany: mockCreateMany,
+}));
 
-jest.unstable_mockModule(
-  '#config/database.js',
-  () => ({
-    db: {
-      execute: mockExecute,
-    }
-  })
-);
+jest.unstable_mockModule('#config/database.js', () => ({
+  db: {
+    execute: mockExecute,
+  },
+}));
 
 export const mockedCalls = {
   mockCreate,
@@ -39,5 +33,5 @@ export const mockedCalls = {
   mockUpdateOne,
   mockCreateMany,
   mockExecute,
-  mockFindOneWithJoin
+  mockFindOneWithJoin,
 };

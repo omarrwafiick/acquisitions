@@ -5,12 +5,7 @@ export const getAppHealthController = async (req, res, next) => {
   try {
     const data = await getAppHealthService();
 
-    responseHandler(
-      req,
-      res,
-      { ...data },
-      200
-    );
+    responseHandler(req, res, { ...data }, 200);
   } catch (error) {
     responseHandler(req, res, error, error.status || 400);
   }

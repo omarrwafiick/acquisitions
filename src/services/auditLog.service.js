@@ -13,14 +13,11 @@ export const listAuditLogsService = async (query = {}, payload) => {
   );
 };
 
-export const getAuditLogsByEntityIdService = async (payload) => {
+export const getAuditLogsByEntityIdService = async payload => {
   const { entity_id, org_id } = payload;
   return await findMany(
     audit_logs,
-    and(
-      eq(audit_logs.entity_id, entity_id),
-      eq(audit_logs.org_id, org_id)
-    )
+    and(eq(audit_logs.entity_id, entity_id), eq(audit_logs.org_id, org_id))
   );
 };
 

@@ -1,10 +1,10 @@
 import logger from '#config/logger.js';
 import { isDatabaseAlive } from '#repositories/database.operations.repository.js';
-import { app, API_URL} from './app.js';
+import { app, API_URL } from './app.js';
 
 const PORT = process.env.PORT || 3000;
 const HOST = process.env.HOST || 'localhost';
-const PROTOCOL = process.env.PROTOCOL || 'http'
+const PROTOCOL = process.env.PROTOCOL || 'http';
 
 const isDbAlive = await isDatabaseAlive();
 

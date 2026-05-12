@@ -2,15 +2,14 @@ import { cookies } from '#utils/cookies.js';
 import JwtTokenAuthenticationException from '#exceptions/JwtTokenAuthentication.exception.js';
 import { jwtToken } from '#utils/security.js';
 import responseHandler from '#utils/response.js';
-import logger from '#config/logger.js';import {
-  arcjetClients,
-} from "#config/arcjet.js";
+import logger from '#config/logger.js';
+import { arcjetClients } from '#config/arcjet.js';
 
 const securityMiddleware = async (req, res, next) => {
   try {
-    const role = req.user?.role || "guest";
+    const role = req.user?.role || 'guest';
     req.userId = req.user?.id || req.ip;
-    
+
     const client = arcjetClients[role] || arcjetClients.guest;
 
     const { message } = mapRoleToMessage(role);
@@ -39,9 +38,9 @@ const securityMiddleware = async (req, res, next) => {
   }
 };
 
-const mapRoleToMessage = (role) => {
+const mapRoleToMessage = role => {
   let message;
-    switch (role) {
+  switch (role) {
     case 'admin':
       message = 'Admin rate limit exceeded';
       break;
@@ -54,17 +53,12 @@ const mapRoleToMessage = (role) => {
     default:
       message = 'Guest rate limit exceeded';
   }
-  return { message }; 
+  return { message };
 };
 
 const securityDecisionTree = async (req, res, next, decision, message) => {
   if (decision.isDenied() && decision.reason.isBot()) {
-    responseHandler(
-      req,
-      res,
-      new Error(`Bot detected: ${message}`),
-      403
-    );
+    responseHandler(req, res, new Error(`Bot detected: ${message}`), 403);
   } else if (decision.isDenied() && decision.reason.isShield()) {
     responseHandler(
       req,

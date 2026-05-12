@@ -1,6 +1,9 @@
 import express from 'express';
 import responseHandler from '#utils/response.js';
-import { getAppHealthController, pingAppHealthController } from '#src/controllers/health.controller.js';
+import {
+  getAppHealthController,
+  pingAppHealthController,
+} from '#src/controllers/health.controller.js';
 
 const router = express.Router();
 

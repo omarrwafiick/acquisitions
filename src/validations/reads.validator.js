@@ -8,4 +8,4 @@ export const readListSchema = z.object({
     })
     .strict()
     .optional(),
-}); 
+});

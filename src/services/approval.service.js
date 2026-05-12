@@ -1,5 +1,10 @@
 import { users } from '#models/user.model.js';
-import { create, findMany, findOne, updateOne } from '#repositories/main.repository.js';
+import {
+  create,
+  findMany,
+  findOne,
+  updateOne,
+} from '#repositories/main.repository.js';
 import { and, eq, sql } from 'drizzle-orm';
 import { createAuditLogService } from './auditLog.service.js';
 import NotFoundException from '#exceptions/notFound.exception.js';
@@ -24,15 +29,13 @@ export const listPendingApprovalsService = async (query = {}, payload) => {
 };
 
 export const changeRequestStateService = async payload => {
-  const {
+  const { requestId, approverId, org_id, newStatus, updateReason } = payload;
+
+  const { request } = await checkRequestAndApprover(
     requestId,
     approverId,
-    org_id,
-    newStatus,
-    updateReason,
-  } = payload;
-
-  const { request } = await checkRequestAndApprover(requestId, approverId, org_id);
+    org_id
+  );
 
   await handleStateChangeCases({
     request,
@@ -57,12 +60,7 @@ export const changeRequestStateService = async payload => {
 };
 
 const handleStateChangeCases = async payload => {
-  const {
-    request,
-    newStatus,
-    approverId,
-    updateReason,
-  } = payload;
+  const { request, newStatus, approverId, updateReason } = payload;
 
   const currentStatus = request.status;
 
@@ -111,8 +109,7 @@ const handleStateChangeCases = async payload => {
       'Request',
       request.id,
       {
-        approvalAfterTimeStamp:
-          request.updated_at - request.created_at,
+        approvalAfterTimeStamp: request.updated_at - request.created_at,
         updateReason,
       }
     )

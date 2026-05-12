@@ -1,4 +1,4 @@
-import BaseException from "./base.exception.js";
+import BaseException from './base.exception.js';
 
 export default class InvalidPasswordException extends BaseException {
   constructor(message = 'Password is invalid.', cause = 'Unknown') {

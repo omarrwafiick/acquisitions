@@ -16,12 +16,12 @@ export const getAppHealthService = async () => {
   } catch {
     status = 503;
   }
-  
+
   return {
     status: status === 200 ? 'healthy' : 'degraded',
     checks,
     uptime: process.uptime(),
     memory: process.memoryUsage(),
     timestamp: new Date().toISOString(),
-  }
+  };
 };

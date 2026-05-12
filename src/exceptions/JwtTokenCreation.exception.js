@@ -1,4 +1,4 @@
-import BaseException from "./base.exception.js";
+import BaseException from './base.exception.js';
 
 export default class JwtTokenCreationException extends BaseException {
   constructor(message = 'Failed to create JWT token', cause = 'Unknown') {

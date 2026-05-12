@@ -30,4 +30,4 @@ router.use('/dashboard', dashboardRoutes);
 
 router.use('/audit-logs', auditLogRoutes);
 
-export { router,  healthRoutes };
+export { router, healthRoutes };

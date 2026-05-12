@@ -18,7 +18,7 @@ import ForbiddenException from '#exceptions/forbidden.exception.js';
 import { vendors } from '#models/vendor.mode.js';
 import { sendEmailService, vendorEmailBodyBuilder } from './email.service.js';
 import logger, { logEventObj } from '#config/logger.js';
-import { request_items} from '#models/request_item.model.js';
+import { request_items } from '#models/request_item.model.js';
 
 export const listPurchaseOrdersService = async (query = {}, payload) => {
   const { org_id } = payload;
@@ -56,7 +56,14 @@ export const getPurchaseOrderByIdService = async payload => {
 };
 
 export const createPurchaseOrderService = async payload => {
-  const { org_id, user_id, request_id, vendor_id, total_amount, approval_reason } = payload;
+  const {
+    org_id,
+    user_id,
+    request_id,
+    vendor_id,
+    total_amount,
+    approval_reason,
+  } = payload;
 
   await isUserLinkedToOrganizationService(org_id, user_id);
 
@@ -71,22 +78,22 @@ export const createPurchaseOrderService = async payload => {
     ),
     findOne(purchase_orders, eq(purchase_orders.request_id, request_id)),
   ]);
-;
   if (!request || request.status !== CONSTANTS.REQUEST.STATUS.APPROVED)
     throw new ForbiddenException('Request was not approved or found');
 
-  if (!vendor) 
-    throw new NotFoundException('Vendor not found');
+  if (!vendor) throw new NotFoundException('Vendor not found');
 
   if (existingPO)
     throw new ForbiddenException(
       'Purchase order already exists for this request'
     );
 
-  const requestItems = await findMany(request_items, eq(request_items.request_id, request_id));
+  const requestItems = await findMany(
+    request_items,
+    eq(request_items.request_id, request_id)
+  );
 
-  if (!requestItems) 
-    throw new NotFoundException('Request items not found');
+  if (!requestItems) throw new NotFoundException('Request items not found');
 
   const totalEstimatedAmount = requestItems.reduce((total, item) => {
     return total + item.quantity * item.estimated_price;
@@ -115,7 +122,7 @@ export const createPurchaseOrderService = async payload => {
       request_id,
       vendor_id,
       total_amount,
-      approval_reason
+      approval_reason,
     },
   });
 
@@ -139,16 +146,14 @@ const handlePurchaseOrderStateChange = async ({
     eq(purchase_orders.id, purchase_order_id)
   );
 
-  if (!purchaseOrder)
-    throw new NotFoundException('Purchase order not found');
+  if (!purchaseOrder) throw new NotFoundException('Purchase order not found');
 
   const request = await findOne(
     requests,
     eq(requests.id, purchaseOrder.request_id)
   );
 
-  if (!request)
-    throw new NotFoundException('Associated request not found');
+  if (!request) throw new NotFoundException('Associated request not found');
 
   if (request.org_id !== org_id)
     throw new ForbiddenException('Unauthorized access');
@@ -253,11 +258,9 @@ const handleVendorSentRequest = async purchaseOrder => {
     findOne(vendors, eq(vendors.id, purchaseOrder.vendor_id)),
   ]);
 
-  if (!requester) 
-    throw new NotFoundException('Requester not found');
+  if (!requester) throw new NotFoundException('Requester not found');
 
-  if (!vendor) 
-    throw new NotFoundException('Vendor not found');
+  if (!vendor) throw new NotFoundException('Vendor not found');
 
   const vendorEmailBody = vendorEmailBodyBuilder({ vendor, purchaseOrder });
 

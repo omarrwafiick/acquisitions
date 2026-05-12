@@ -46,7 +46,7 @@ export const listRequestsService = async (query = {}, payload) => {
         reason: r.reason,
         status: r.status,
         created_at: r.created_at,
-        items: []
+        items: [],
       };
     }
 
@@ -72,10 +72,9 @@ export const getRequestByIdService = async payload => {
     requests,
     and(eq(requests.id, id), eq(requests.org_id, org_id))
   );
-  
-  if (!result) 
-    throw new NotFoundException('Request not found');
-  
+
+  if (!result) throw new NotFoundException('Request not found');
+
   return result;
 };
 
@@ -84,7 +83,7 @@ export const submitRequestService = async payload => {
 
   const user = await isUserLinkedToOrganizationService(org_id, user_id);
 
-  if(!user.role || user.role !== CONSTANTS.ROLES.REQUESTER)
+  if (!user.role || user.role !== CONSTANTS.ROLES.REQUESTER)
     throw new ForbiddenException('User is not in a requester role.');
 
   const requestExists = await findOne(
@@ -98,7 +97,9 @@ export const submitRequestService = async payload => {
   );
 
   if (requestExists)
-    throw new DuplicateException('A request with the same title already exists.');
+    throw new DuplicateException(
+      'A request with the same title already exists.'
+    );
 
   const request = await create(requests, {
     org_id,
@@ -108,15 +109,17 @@ export const submitRequestService = async payload => {
     status: CONSTANTS.REQUEST.STATUS.SUBMITTED,
   });
 
-  if (!request)
-    throw new Error('Failed to create request.');
+  if (!request) throw new Error('Failed to create request.');
 
-  await createMany(request_items, items.map(item => ({
-    request_id: request.id,
-    name: item.name,
-    quantity: item.quantity,
-    estimated_price: item.estimatedPrice,
-  })));
+  await createMany(
+    request_items,
+    items.map(item => ({
+      request_id: request.id,
+      name: item.name,
+      quantity: item.quantity,
+      estimated_price: item.estimatedPrice,
+    }))
+  );
 
   await createAuditLogService({
     org_id,

@@ -1,33 +1,26 @@
-import arcjet, {
-  detectBot,
-  shield,
-  slidingWindow,
-} from "@arcjet/node";
+import arcjet, { detectBot, shield, slidingWindow } from '@arcjet/node';
 
-const createClient = (max) =>
+const createClient = max =>
   arcjet({
     key: process.env.ARCJET_KEY,
 
-    characteristics: ["userId"],
+    characteristics: ['userId'],
 
     rules: [
       shield({
-        mode: "LIVE",
+        mode: 'LIVE',
       }),
 
       detectBot({
-        mode: "LIVE",
+        mode: 'LIVE',
 
-        allow: [
-          "CATEGORY:SEARCH_ENGINE",
-          "CATEGORY:PREVIEW",
-        ],
+        allow: ['CATEGORY:SEARCH_ENGINE', 'CATEGORY:PREVIEW'],
       }),
 
       slidingWindow({
-        mode: "LIVE",
+        mode: 'LIVE',
         max,
-        interval: process.env.NODE_ENV === "production" ? "1m" : "1s",
+        interval: process.env.NODE_ENV === 'production' ? '1m' : '1s',
       }),
     ],
   });

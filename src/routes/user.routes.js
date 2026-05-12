@@ -13,9 +13,9 @@ router.use(authenticationMiddleware);
 router.use(roleBasedAccessControlMiddleware([CONSTANTS.ROLES.MODERATOR]));
 
 router.post(
-    '/list',
-    schemaValidatorMiddleware(readListSchema), 
-    listUsersController
+  '/list',
+  schemaValidatorMiddleware(readListSchema),
+  listUsersController
 );
 
 export default router;
