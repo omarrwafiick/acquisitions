@@ -86,6 +86,58 @@ describe('Approval Service', () => {
       expect(mockCreate).not.toHaveBeenCalled();
     }
   );
+
+  it('should throw not found error if request does not exist', async () => {
+    mockFindOne.mockResolvedValueOnce({
+      id: 5,
+      role: 'approver'
+    });
+
+    mockExecute.mockResolvedValue({
+      rows: []
+    });
+
+    await expect(
+      changeRequestStateService({
+        requestId: 10,
+        approverId: 5,
+        org_id: 1,
+        newStatus: CONSTANTS.REQUEST.STATUS.APPROVED
+      })
+    ).rejects.toThrow('Entities was not found using ids you provided.');
+
+    expect(mockUpdateOne).not.toHaveBeenCalled();
+    expect(mockCreate).not.toHaveBeenCalled();
+  });
+  
+  it('should throw forbidden error if user is not an approver', async () => {
+    mockFindOne.mockResolvedValueOnce({
+      id: 5,
+      role: 'requester'
+    });
+
+    mockExecute.mockResolvedValue({
+      rows: [
+        {
+          id: 10,
+          status: CONSTANTS.REQUEST.STATUS.SUBMITTED,
+          org_id: 1
+        }
+      ]
+    });
+
+    await expect(
+      changeRequestStateService({
+        requestId: 10,
+        approverId: 5,
+        org_id: 1,
+        newStatus: CONSTANTS.REQUEST.STATUS.APPROVED
+      })
+    ).rejects.toThrow('User is not in role.');
+
+    expect(mockUpdateOne).not.toHaveBeenCalled();
+    expect(mockCreate).not.toHaveBeenCalled();
+  });
 });
 
 const sharedChangeRequestStateTests = async (newStatus, requestStatus) => {
