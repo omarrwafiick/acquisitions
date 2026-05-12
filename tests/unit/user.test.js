@@ -1,11 +1,16 @@
 import { CONSTANTS } from '#src/services/constants.service.js';
 import { mockedCalls } from '../helpers/mocked.calls.js';
+import { jest } from '@jest/globals';
 
 const { mockFindOne } = mockedCalls;
 
 const { isUserLinkedToOrganizationService } = await import('#src/services/user.service.js');
 
 describe('User Service', () => {
+  
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
 
   it('should check if user is linked to organization', async () => {
     mockFindOne.mockResolvedValue({

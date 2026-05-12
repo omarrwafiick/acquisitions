@@ -56,7 +56,7 @@ export const getPurchaseOrderByIdService = async payload => {
 };
 
 export const createPurchaseOrderService = async payload => {
-  const { org_id, user_id, request_id, vendor_id, total_amount } = payload;
+  const { org_id, user_id, request_id, vendor_id, total_amount, approval_reason } = payload;
 
   await isUserLinkedToOrganizationService(org_id, user_id);
 
@@ -75,7 +75,8 @@ export const createPurchaseOrderService = async payload => {
   if (!request || request.status !== CONSTANTS.REQUEST.STATUS.APPROVED)
     throw new ForbiddenException('Request was not approved or found');
 
-  if (!vendor) throw new NotFoundException('Vendor not found');
+  if (!vendor) 
+    throw new NotFoundException('Vendor not found');
 
   if (existingPO)
     throw new ForbiddenException(
@@ -91,9 +92,9 @@ export const createPurchaseOrderService = async payload => {
     return total + item.quantity * item.estimated_price;
   }, 0);
 
-  if (total_amount < totalEstimatedAmount)
+  if (total_amount < totalEstimatedAmount && !approval_reason)
     throw new ForbiddenException(
-      `Total amount must be at least the total estimated amount of ${totalEstimatedAmount}`
+      'A reason is required when approving an amount lower than the estimated total.'
     );
 
   const newPurchaseOrder = await create(purchase_orders, {
@@ -114,6 +115,7 @@ export const createPurchaseOrderService = async payload => {
       request_id,
       vendor_id,
       total_amount,
+      approval_reason
     },
   });
 
@@ -251,9 +253,11 @@ const handleVendorSentRequest = async purchaseOrder => {
     findOne(vendors, eq(vendors.id, purchaseOrder.vendor_id)),
   ]);
 
-  if (!requester) throw new NotFoundException('Requester not found');
+  if (!requester) 
+    throw new NotFoundException('Requester not found');
 
-  if (!vendor) throw new NotFoundException('Vendor not found');
+  if (!vendor) 
+    throw new NotFoundException('Vendor not found');
 
   const vendorEmailBody = vendorEmailBodyBuilder({ vendor, purchaseOrder });
 

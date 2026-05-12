@@ -8,7 +8,6 @@ const {
   mockCreateMany
 } = mockedCalls;
 
-// mock user service
 jest.unstable_mockModule('#src/services/user.service.js', () => ({
   isUserLinkedToOrganizationService: jest.fn()
 }));

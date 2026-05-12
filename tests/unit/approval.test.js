@@ -1,11 +1,16 @@
 import { CONSTANTS } from '#src/services/constants.service.js';
 import { mockedCalls } from '../helpers/mocked.calls.js';
+import { jest } from '@jest/globals';
 
 const { mockCreate, mockFindOne, mockUpdateOne, mockExecute } = mockedCalls;
 
 const { changeRequestStateService } = await import('#src/services/approval.service.js');
 
 describe('Approval Service', () => {
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
 
   it('should approve request and create audit log', async () => {
     await sharedChangeRequestStateTests(CONSTANTS.REQUEST.STATUS.APPROVED, CONSTANTS.REQUEST.STATUS.SUBMITTED);
