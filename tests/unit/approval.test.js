@@ -167,7 +167,7 @@ const sharedChangeRequestStateTests = async (newStatus, requestStatus) => {
     requestId: 10,
     approverId: 5,
     org_id: 1,
-    newStatus: newStatus,
+    newStatus,
     updateReason: 'we can afford it',
   });
 

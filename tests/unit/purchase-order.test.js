@@ -222,15 +222,15 @@ const sharedStateTest = async (oldStatus, expectedStatus) => {
   const result =
     expectedStatus === CONSTANTS.PURCHASE_ORDER.STATUS.SENT
       ? await sendPurchaseOrderService({
-          org_id: 1,
-          user_id: 7,
-          purchase_order_id: 10,
-        })
+        org_id: 1,
+        user_id: 7,
+        purchase_order_id: 10,
+      })
       : await completePurchaseOrderService({
-          org_id: 1,
-          user_id: 7,
-          purchase_order_id: 10,
-        });
+        org_id: 1,
+        user_id: 7,
+        purchase_order_id: 10,
+      });
 
   expect(result.status).toBe(expectedStatus);
 

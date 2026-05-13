@@ -13,24 +13,24 @@ function responseHandler(req, res, payload = {}, status = 200) {
 
   const responseBody = isError
     ? {
-        error: {
-          name: err.name,
-          message: err.message,
-          details: payload.details ?? null,
-        },
-      }
+      error: {
+        name: err.name,
+        message: err.message,
+        details: payload.details ?? null,
+      },
+    }
     : payload;
 
   const logBody = {
     ...(isError
       ? {
-          error: {
-            name: err.name,
-            message: err.message,
-            status: err.status,
-            details: err.details ?? null,
-          },
-        }
+        error: {
+          name: err.name,
+          message: err.message,
+          status: err.status,
+          details: err.details ?? null,
+        },
+      }
       : { data: payload }),
 
     info: {
