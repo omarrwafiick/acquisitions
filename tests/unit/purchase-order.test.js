@@ -1,7 +1,7 @@
-import { CONSTANTS } from '#src/services/constants.service.js';
 import { jest } from '@jest/globals';
-
 const { mockedCalls } = await import('../helpers/mocked.calls.js');
+
+import { CONSTANTS } from '#src/services/constants.service.js';
 
 const { mockCreate, mockFindOne, mockFindMany, mockUpdateOne } = mockedCalls;
 

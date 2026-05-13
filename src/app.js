@@ -25,15 +25,15 @@ app.use(
   })
 );
 
-//app.use(securityMiddleware);
+app.use(securityMiddleware);
 
 const MAIN_URL = `${process.env.URL}`;
 
 const API_URL = `${MAIN_URL}${process.env.VERSION}`;
 
-app.use(`/${MAIN_URL}health`, healthRoutes);
+app.use(`${MAIN_URL}/health`, healthRoutes);
 
-app.use(`/${API_URL}`, router);
+app.use(`${API_URL}`, router);
 
 app.use((req, res) => {
   res.status(404).json({ error: 'Route not found' });
