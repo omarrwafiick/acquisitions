@@ -235,7 +235,7 @@ export const completePurchaseOrderService = async payload => {
     },
 
     sideEffect: async ({ purchaseOrder }) => {
-      logger.log(
+      logger.info(
         logEventObj(
           'Purchase order completed',
           payload.user_id,
